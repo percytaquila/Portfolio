@@ -1,0 +1,95 @@
+---
+title: "Practical Ethical Hacking"
+academy: "TCM Security"
+instructor: "Heath Adams (TheCyberMentor)"
+duration: "25+ horas"
+status: "completed"
+cert: "ejptv2"
+url: "https://academy.tcm-sec.com/p/practical-ethical-hacking-the-complete-course"
+rating: 5
+summary: "El mejor curso para empezar en pentesting. Cubre desde redes hasta Active Directory con laboratorios prácticos."
+modules:
+  - { num: "01", title: "Introduction & Notekeeping", status: "done" }
+  - { num: "02", title: "Networking Refresher", status: "done" }
+  - { num: "03", title: "Setting Up Your Lab", status: "done" }
+  - { num: "04", title: "Python 101 for Hackers", status: "done" }
+  - { num: "05", title: "The Ethical Hacker Methodology", status: "done" }
+  - { num: "06", title: "Information Gathering (OSINT)", status: "done" }
+  - { num: "07", title: "Scanning & Enumeration", status: "done" }
+  - { num: "08", title: "Exploitation Basics", status: "done" }
+  - { num: "09", title: "New Capstone", status: "done" }
+  - { num: "10", title: "Mid-Course Capstone", status: "done" }
+  - { num: "11", title: "Active Directory Overview", status: "done" }
+  - {
+      num: "12",
+      title: "Attacking Active Directory: Initial Attack Vectors",
+      status: "done",
+    }
+  - {
+      num: "13",
+      title: "Attacking Active Directory: Post-Compromise Attacks",
+      status: "done",
+    }
+  - {
+      num: "14",
+      title: "We've Compromised the Domain - Now What?",
+      status: "done",
+    }
+  - { num: "15", title: "Web Application Enumeration", status: "done" }
+  - {
+      num: "16",
+      title: "Testing the Top 10 Web Vulnerabilities",
+      status: "done",
+    }
+  - {
+      num: "17",
+      title: "Legal Documentation and Report Writing",
+      status: "done",
+    }
+---
+
+## ¿Por qué este curso?
+
+Empecé el PEH antes de meterme de lleno al eJPTv2 porque el curso de INE da mucha teoría pero poco contexto de "cómo piensa un atacante". Heath Adams explica el **proceso mental** del pentesting, no solo los comandos.
+
+Si tuviera que recomendar un solo curso para alguien que viene de backend (como yo), sería este.
+
+## Lo que más me aportó
+
+### Active Directory
+
+La sección de AD fue reveladora. Vengo de configurar Azure DevOps y nunca había pensado en cómo los mismos conceptos de dominios, usuarios y permisos se convierten en vectores de ataque. Ver **Pass-the-Hash**, **Kerberoasting** y **BloodHound** en acción cambió cómo pienso cuando reviso configuraciones de Azure.
+
+### Methodology
+
+El capítulo de metodología es el más valioso del curso. Antes saltaba directo a explotar cosas. Ahora entiendo por qué la enumeración profunda **siempre** precede a la explotación.
+
+### Report Writing
+
+Subestimado por la mayoría. Aprendí a documentar hallazgos con severidad CVSS, pasos de reproducción y remediation — directamente aplicable a mi trabajo en Data Consulting.
+
+## Notas personales
+
+```bash
+# Comandos que más uso del curso:
+
+# Enumeración SMB
+nmap -p 445 --script smb-vuln* <target>
+enum4linux -a <target>
+
+# Kerberoasting
+python3 GetUserSPNs.py domain/user:pass -dc-ip <dc-ip> -request
+
+# Responder (LLMNR poisoning)
+sudo responder -I eth0 -rdwv
+```
+
+## Recursos complementarios que usé junto al curso
+
+- **TryHackMe — Pre-Security path**: Para los fundamentos de red antes de empezar el PEH
+- **HackTheBox Academy — Footprinting module**: Para complementar la parte de reconocimiento
+- **ippsec.rocks**: Para buscar writeups de máquinas HTB que coinciden con los temas del curso
+
+## Rating
+
+⭐⭐⭐⭐⭐ — Imprescindible si vienes del mundo del desarrollo y quieres entrar a seguridad ofensiva.

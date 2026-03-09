@@ -1,0 +1,119 @@
+---
+// src/pages/portfolio/index.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header     from '@/components/layout/Header.astro';
+import Footer     from '@/components/layout/Footer.astro';
+import { projects } from '@/data/cv-data.js';
+
+const langColors: Record<string, { pill: string; label: string }> = {
+  dotnet:   { pill: 'lp-dotnet',   label: '.NET'     },
+  python:   { pill: 'lp-python',   label: 'Python'   },
+  java:     { pill: 'lp-java',     label: 'Java'     },
+  php:      { pill: 'lp-php',      label: 'PHP'      },
+  security: { pill: 'lp-security', label: 'Seguridad' },
+};
+---
+
+<BaseLayout title="Portafolio — Percy Taquila">
+  <Header />
+
+  <main style="padding-top: 60px; flex: 1; display: flex; flex-direction: column;">
+    <div class="page-inner">
+      <div class="page-header">
+        <p class="section-eyebrow">Proyectos</p>
+        <h1 class="section-title">Portafolio Backend</h1>
+        <p class="page-sub">{projects.length} proyectos en .NET, Python, Java, PHP y herramientas de seguridad.</p>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters">
+        <button class="fbtn active" data-f="all">Todos</button>
+        {Object.entries(langColors).map(([key, val]) => (
+          <button class="fbtn" data-f={key}>{val.label}</button>
+        ))}
+      </div>
+
+      <!-- Grid -->
+      <div class="projects-grid">
+        {projects.map(proj => (
+          <div class="project-card" data-lang={proj.lang}>
+            <span class={`lp ${langColors[proj.lang]?.pill}`}>{proj.langLabel}</span>
+            <div class="pc-title">{proj.title}</div>
+            <div class="pc-desc">{proj.desc}</div>
+            <div class="pc-tags">
+              {proj.tags.map(tag => <span class="pc-tag">{tag}</span>)}
+            </div>
+            <div class="pc-footer">
+              <div class="pc-links">
+                {proj.github && <a class="pc-link" href={proj.github} target="_blank" rel="noopener">GitHub →</a>}
+                {proj.demo   && <a class="pc-link" href={proj.demo}   target="_blank" rel="noopener">Demo →</a>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.fbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.f;
+      document.querySelectorAll<HTMLElement>('.project-card').forEach(card => {
+        card.style.display = (f === 'all' || card.dataset.lang === f) ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+<style>
+  .filters { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+  .fbtn {
+    font-size: .7rem; font-weight: 500; padding: .28rem .75rem;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text3); border-radius: 6px; cursor: pointer; transition: all .15s;
+  }
+  .fbtn:hover, .fbtn.active { border-color: var(--blue); color: var(--blue3); background: rgba(59,91,219,.08); }
+
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1rem; }
+
+  .project-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.4rem; display: flex; flex-direction: column; gap: .7rem;
+    transition: all .15s; cursor: pointer; position: relative; overflow: hidden;
+  }
+  .project-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--blue3));
+    transform: scaleX(0); transition: transform .25s; transform-origin: left;
+  }
+  .project-card:hover { border-color: rgba(59,91,219,.35); transform: translateY(-2px); }
+  .project-card:hover::before { transform: scaleX(1); }
+
+  .lp { font-size: .6rem; font-weight: 600; padding: .16rem .5rem; border-radius: 4px; display: inline-block; width: fit-content; }
+  .lp-dotnet   { background: rgba(168,85,247,.1);  color: #c084fc; border: 1px solid rgba(168,85,247,.22); }
+  .lp-python   { background: rgba(59,130,246,.1);  color: #93c5fd; border: 1px solid rgba(59,130,246,.22); }
+  .lp-java     { background: rgba(251,146,60,.1);  color: #fdba74; border: 1px solid rgba(251,146,60,.22); }
+  .lp-php      { background: rgba(99,102,241,.1);  color: #a5b4fc; border: 1px solid rgba(99,102,241,.22); }
+  .lp-security { background: rgba(59,91,219,.1);   color: var(--blue3); border: 1px solid rgba(59,91,219,.28); }
+
+  .pc-title { font-size: .9rem; font-weight: 600; }
+  .pc-desc  { font-size: .78rem; color: var(--text2); line-height: 1.62; flex-grow: 1; }
+  .pc-tags  { display: flex; flex-wrap: wrap; gap: .28rem; }
+  .pc-tag   { font-size: .58rem; color: var(--text3); background: var(--bg3); padding: .12rem .38rem; border-radius: 4px; }
+  .pc-footer { display: flex; justify-content: space-between; align-items: center; padding-top: .7rem; border-top: 1px solid var(--border); }
+  .pc-links  { display: flex; gap: .65rem; }
+  .pc-link   { font-size: .65rem; color: var(--blue3); text-decoration: none; font-weight: 500; }
+  .pc-link:hover { color: var(--blue2); }
+
+  @media (max-width: 600px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .filters { gap: .3rem; }
+    .fbtn { font-size: .7rem; padding: .3rem .65rem; }
+  }
+</style>

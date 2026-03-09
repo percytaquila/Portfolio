@@ -1,0 +1,116 @@
+---
+// src/components/layout/Footer.astro
+---
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <div class="f-brand">
+        <a href="/" class="f-logo"><span>~/</span>dev·sec</a>
+        <p class="f-tagline">Backend Developer & Offensive Security en formación. Tacna, Perú.</p>
+        <div class="f-socials">
+          <a href="https://linkedin.com/in/percytaquila" target="_blank" rel="noopener" class="f-soc">
+            💼 LinkedIn
+          </a>
+          <a href="https://github.com/percytaquila" target="_blank" rel="noopener" class="f-soc">
+            🐙 GitHub
+          </a>
+          <a href="mailto:tcpercyhuber.23@gmail.com" class="f-soc">
+            ✉️ Email
+          </a>
+        </div>
+      </div>
+
+      <div class="f-col">
+      
+      </div>
+
+      <div class="f-col">
+      </div>
+
+      <div class="f-col">
+        <div class="f-col-title">Contacto</div>
+        <ul>
+          <li><a href="mailto:percy-taquila23@hotmail.com">percy-taquila23@hotmail.com</a></li>
+          <li><a href="https://linkedin.com/in/percytaquila" target="_blank">LinkedIn</a></li>
+          <li><a href="https://github.com/percytaquila" target="_blank">GitHub</a></li>
+          <li><a href="/cv/Percy_Taquila_CV.docx" download>Descargar CV</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p class="f-copy">
+        © {new Date().getFullYear()} Percy Taquila Carazas · Hecho con
+        <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 2.5rem 2rem 1.5rem;
+    margin-top: auto;
+  }
+
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .f-logo {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .f-logo span { color: var(--blue2); }
+
+  .f-tagline { font-size: 0.78rem; color: var(--text3); line-height: 1.6; margin-bottom: 1rem; }
+
+  .f-socials { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .f-soc {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.38rem 0.7rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 7px; font-size: 0.7rem; color: var(--text2);
+    text-decoration: none; transition: all 0.15s; font-weight: 500;
+  }
+  .f-soc:hover { border-color: var(--blue); color: var(--text); background: rgba(59,91,219,.08); }
+
+  .f-col-title {
+    font-size: 0.62rem; font-weight: 600; color: var(--blue3);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .f-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
+  .f-col a  { font-size: 0.78rem; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+  .f-col a:hover { color: var(--text2); }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 1.2rem; border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .f-copy { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text3); }
+  .f-copy a { color: var(--blue3); text-decoration: none; }
+  .f-disc { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text3); }
+
+  @media (max-width: 768px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .footer-top { grid-template-columns: 1fr; }
+  }
+</style>

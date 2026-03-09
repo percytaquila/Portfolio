@@ -1,0 +1,504 @@
+---
+// src/pages/security/index.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header     from '@/components/layout/Header.astro';
+import Footer     from '@/components/layout/Footer.astro';
+import { certifications, platforms, roadmap, skills, certLearning, advantage } from '@/data/cv-data.js';
+
+const certBadge = {
+  done: { cls: 'b-done', label: '✓ Obtenida'  },
+  wip:  { cls: 'b-wip',  label: 'En progreso' },
+  next: { cls: 'b-next', label: 'Próximo'      },
+};
+const statusColor = {
+  done: '#4ade80', wip: '#fbbf24', next: '#5a6a85', goal: '#748ffc',
+};
+const statusIcon = {
+  done: '✓', wip: '→', next: '○', goal: '⌛',
+};
+const diffClass = {
+  easy: 'md-easy', med: 'md-med', hard: 'md-hard',
+};
+const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val.label, status: val.status }));
+---
+
+<BaseLayout title="Seguridad & Red Team — Percy Taquila">
+  <Header />
+  <main style="padding-top:60px; flex:1; display:flex; flex-direction:column;">
+    <div class="page-inner">
+
+      <div class="page-header">
+        <p class="section-eyebrow">Offensive Security</p>
+        <h1 class="section-title">Seguridad & Red Team</h1>
+        <p class="page-sub">Certificaciones, ruta de aprendizaje y preparación documentada para eJPTv2 y eWPT.</p>
+      </div>
+
+      <!-- Overview 2x2 -->
+      <div class="overview-grid">
+
+        <div class="sec-card">
+          <div class="sc-ey">🎓 Certificaciones Ofensivas</div>
+          <div class="sc-title">Obtenidas & Próximas</div>
+          <div class="cert-list">
+            {certifications.offensive.map(c => (
+              <div class="cert-item">
+                <div class="c-icon">{c.icon}</div>
+                <div class="c-info">
+                  <div class="c-name">{c.name}</div>
+                  <div class="c-sub">{c.full} · {c.issuer}</div>
+                </div>
+                <span class={`c-badge ${certBadge[c.status].cls}`}>{certBadge[c.status].label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="sec-card">
+          <div class="sc-ey">📊 Plataformas</div>
+          <div class="sc-title">HackTheBox & TryHackMe</div>
+          <div class="platform-stats">
+            {platforms.map(p => (
+              <div class="plat-row">
+                <div class="plat-meta"><span>{p.name}</span><span class="plat-v">{p.machines} máquinas</span></div>
+                <div class="plat-track"><div class="plat-fill" style={`width:${p.pct}%`}></div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="sec-card">
+          <div class="sc-ey">🛠️ Stack Ofensivo</div>
+          <div class="sc-title">Herramientas</div>
+          <div class="tools-wrap">
+            {skills.security.map(t => <span class="tool">{t}</span>)}
+            {skills.tools.map(t => <span class="tool">{t}</span>)}
+          </div>
+        </div>
+
+        <div class="sec-card">
+          <div class="sc-ey">🔗 Backend + Security</div>
+          <div class="sc-title">Mi ventaja diferencial</div>
+          <div class="adv-list">
+            {advantage.map(a => (
+              <div class="adv-item">
+                <div class="adv-title">{a.title}</div>
+                <div class="adv-desc">{a.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Learning section -->
+      <div class="learning-section">
+        <p class="section-eyebrow">📚 Preparación para certificaciones</p>
+        <h2 class="learn-title">Camino de aprendizaje documentado</h2>
+        <p class="page-sub" style="margin-bottom:1.4rem">Cada certificación tiene su review, cursos con temarios, labs y recursos.</p>
+
+        <div class="cert-tabs">
+          {tabs.map((tab, i) => (
+            <button class={`ctab${i === 0 ? ' active' : ''}`} data-cert={tab.key}>
+              <span class={`ctab-dot dot-${tab.status}`}></span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {Object.entries(certLearning).map(([key, cert], i) => (
+          <div class={`cert-panel${i === 0 ? ' active' : ''}`} id={`cert-${key}`}>
+
+            {(cert.status === 'next' || cert.status === 'wip') ? (
+              <div class="wip-card">
+                <span class="wip-icon">⚔️</span>
+                <div class="wip-title">{cert.label} — En preparación</div>
+                <p class="wip-text">Próxima certificación. Documentando el proceso en tiempo real.</p>
+                <div class="wip-bar"><div class="wip-fill" style="width:10%"></div></div>
+                <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text3);margin-top:.4rem">Iniciando preparación</div>
+              </div>
+            ) : (
+              <div class="panel-content">
+
+                {cert.review && (
+                  <div class="review-card">
+                    <div class="review-left">
+                      <div class={`review-badge ${cert.review.examStatus === 'wip' ? 'badge-wip' : 'badge-done'}`}>
+                        {cert.review.examStatus === 'wip' ? `⏳ En proceso · ${cert.review.obtained}` : `✓ Obtenida · ${cert.review.obtained}`}
+                      </div>
+                      <h3 class="review-title">Mi experiencia con el {cert.label}</h3>
+                      <p class="review-text">{cert.review.summary}</p>
+                      <div class="tips-section">
+                        <div class="tips-label">💡 Tips para el examen</div>
+                        {cert.review.tips.map(tip => (
+                          <div class="tip-item"><span class="tip-arrow">›</span>{tip}</div>
+                        ))}
+                      </div>
+                      <div class="review-tags">
+                        {cert.review.tags.map(tag => <span class="rtag">{tag}</span>)}
+                      </div>
+                    </div>
+                    <div class="review-stats">
+                      <div class="rstat"><div class="rstat-icon">⏱️</div><div><div class="rstat-label">Duración</div><div class="rstat-value">{cert.review.duration}</div></div></div>
+                      <div class="rstat">
+                        <div class="rstat-icon">🎯</div>
+                        <div>
+                          <div class="rstat-label">Resultado</div>
+                          <div class={`rstat-value ${cert.review.result === 'Aprobado' ? 'green' : cert.review.result === 'En proceso' ? 'wip' : 'neutral'}`}>
+                            {cert.review.result === 'Aprobado' ? `${cert.review.result} ✓` : cert.review.result === 'En proceso' ? `⏳ ${cert.review.result}` : cert.review.result}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="rstat"><div class="rstat-icon">📅</div><div><div class="rstat-label">Fecha</div><div class="rstat-value">{cert.review.obtained}</div></div></div>
+                      <div class="rstat"><div class="rstat-icon">📊</div><div><div class="rstat-label">Dificultad</div><div class="rstat-value green">{cert.review.difficulty}</div></div></div>
+                    </div>
+                  </div>
+                )}
+
+                <div class="content-grid">
+
+                  <div class="ejpt-card">
+                    <div class="ejpt-ey">📚 Academias y material estudiado</div>
+                    <h4 class="ejpt-h4">Cursos tomados</h4>
+                    <div class="course-list">
+                      {cert.courses.map(course => (
+                        <div class="course-item" data-course={course.slug}>
+                          <div class="course-header" data-toggle={course.slug}>
+                            <div class={`course-logo ${course.logoClass}`}>{course.academy.slice(0,3).toUpperCase()}</div>
+                            <div class="course-info">
+                              <div class="course-name">{course.name}</div>
+                            </div>
+                            <div class="course-right">
+                              {course.mdxFile && (
+                                <a href={course.mdxFile} class="course-notes-btn" onclick="event.stopPropagation()">
+                                  Ver notas →
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                          <div class="course-modules" id={`mod-${course.slug}`} style="display:none">
+                            <div class="mod-grid">
+                              {course.modules.map(m => (
+                                <div class="mod-row">
+                                  <span class="mod-n">{m.num}</span>
+                                  <span class="mod-name">{m.title}</span>
+                                  <span style={`font-size:.65rem;font-weight:600;color:${statusColor[m.status]}`}>{statusIcon[m.status]}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <button class="expand-btn" data-expand={course.slug} id={`btn-${course.slug}`}>
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" id={`svg-${course.slug}`}><polyline points="2,3 5,7 8,3"/></svg>
+                            <span id={`lbl-${course.slug}`}>Ver temario</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div class="right-col">
+
+                    <div class="ejpt-card">
+                      <div class="ejpt-ey">🖥️ Máquinas practicadas</div>
+                      <h4 class="ejpt-h4">Labs para preparar el {cert.label}</h4>
+                      <div class="machine-list" id={`machines-${key}`}>
+                        {cert.machines.map((m, idx) => (
+                          <div class="machine-item" style={idx >= 5 ? 'display:none' : ''} data-machine-idx={idx}>
+                            <div class={`m-diff ${diffClass[m.diff] ?? 'md-easy'}`}>{m.diff.slice(0,4).toUpperCase()}</div>
+                            <div class="m-info">
+                              <div class="m-name">{m.name}</div>
+                              <div class="m-tags">{m.tags.map(t => <span class="m-tag">{t}</span>)}</div>
+                            </div>
+                            <div class="m-plat">{m.platform}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {cert.machines.length > 5 && (
+                        <button class="show-more-btn" id={`showbtn-${key}`} data-cert-key={key} data-total={cert.machines.length}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" id={`showsvg-${key}`}><polyline points="2,4 6,8 10,4"/></svg>
+                          Ver {Math.min(cert.machines.length - 5, 10)} máquinas más
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.ctab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.cert-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('cert-' + (tab as HTMLElement).dataset.cert)?.classList.add('active');
+    });
+  });
+
+  // Toggle course modules
+  document.querySelectorAll('[data-toggle]').forEach(el => {
+    el.addEventListener('click', () => {
+      const slug = (el as HTMLElement).dataset.toggle!;
+      const mods = document.getElementById('mod-' + slug);
+      const btn  = document.getElementById('btn-' + slug);
+      const lbl  = document.getElementById('lbl-' + slug);
+      const svg  = document.getElementById('svg-' + slug);
+      const item = document.querySelector('[data-course="' + slug + '"]');
+      if (!mods) return;
+      const open = mods.style.display === 'none' || mods.style.display === '';
+      mods.style.display = open ? 'block' : 'none';
+      item?.classList.toggle('expanded', open);
+      if (lbl) lbl.textContent = open ? 'Ocultar temario' : 'Ver temario';
+      if (svg) svg.style.transform = open ? 'rotate(180deg)' : '';
+    });
+  });
+
+  document.querySelectorAll('[data-expand]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slug = (btn as HTMLElement).dataset.expand!;
+      const header = document.querySelector(`[data-toggle="${slug}"]`);
+      header?.dispatchEvent(new Event('click'));
+    });
+  });
+
+
+  document.querySelectorAll('.show-more-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key   = (btn as HTMLElement).dataset.certKey!;
+      const total = parseInt((btn as HTMLElement).dataset.total!);
+      const items = document.querySelectorAll<HTMLElement>(`#machines-${key} [data-machine-idx]`);
+
+      const visible = Array.from(items).filter(el => el.style.display !== 'none').length;
+
+      // Si ya están todos visibles → colapsar a 5
+      if (visible >= total) {
+        items.forEach((item, idx) => {
+          item.style.display = idx < 5 ? 'grid' : 'none';
+        });
+        btn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,4 6,8 10,4"/></svg>
+          Ver ${Math.min(total - 5, 10)} máquinas más
+        `;
+        btn.setAttribute('data-cert-key', key);
+        btn.setAttribute('data-total', String(total));
+        return;
+      }
+
+      const nextVisible = Math.min(visible + 10, total);
+      items.forEach((item, idx) => {
+        item.style.display = idx < nextVisible ? 'grid' : 'none';
+      });
+
+      const remaining = total - nextVisible;
+
+      if (remaining <= 0) {
+        // Todas visibles → mostrar opción de ocultar
+        btn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(180deg)"><polyline points="2,4 6,8 10,4"/></svg>
+          Ocultar máquinas
+        `;
+      } else {
+        btn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,4 6,8 10,4"/></svg>
+          Ver ${Math.min(remaining, 10)} máquinas más
+        `;
+      }
+      btn.setAttribute('data-cert-key', key);
+      btn.setAttribute('data-total', String(total));
+    });
+  });
+</script>
+
+<style>
+  .overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem; }
+  .sec-card  { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.5rem; }
+  .sc-ey     { font-size:.58rem; font-weight:600; color:var(--blue3); letter-spacing:.12em; text-transform:uppercase; margin-bottom:.5rem; }
+  .sc-title  { font-size:.95rem; font-weight:600; margin-bottom:.9rem; }
+
+  .cert-list { display:flex; flex-direction:column; gap:.5rem; }
+  .cert-item { display:flex; align-items:center; gap:.7rem; padding:.65rem; background:var(--bg3); border:1px solid var(--border); border-radius:8px; }
+  .c-icon    { width:34px; height:34px; background:rgba(59,91,219,.12); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
+  .c-info    { flex:1; min-width:0; }
+  .c-name    { font-size:.8rem; font-weight:600; }
+  .c-sub     { font-size:.62rem; color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .c-badge   { font-size:.58rem; font-weight:600; padding:.18rem .45rem; border-radius:4px; flex-shrink:0; }
+  .b-done    { background:rgba(74,222,128,.1); color:#4ade80; border:1px solid rgba(74,222,128,.22); }
+  .b-wip     { background:rgba(251,191,36,.1);  color:#fbbf24; border:1px solid rgba(251,191,36,.22); }
+  .b-next    { background:rgba(99,102,241,.1);  color:#a5b4fc; border:1px solid rgba(99,102,241,.22); }
+
+  .platform-stats { display:flex; flex-direction:column; gap:.75rem; }
+  .plat-row   { display:flex; flex-direction:column; gap:.22rem; }
+  .plat-meta  { display:flex; justify-content:space-between; font-size:.7rem; color:var(--text2); }
+  .plat-v     { font-family:var(--font-mono); color:var(--blue3); }
+  .plat-track { height:4px; background:var(--bg); border-radius:99px; overflow:hidden; }
+  .plat-fill  { height:100%; background:linear-gradient(90deg,var(--blue),var(--blue3)); border-radius:99px; }
+
+  .road-item  { display:flex; align-items:center; justify-content:space-between; padding:.42rem 0; border-bottom:1px solid var(--border); font-size:.78rem; color:var(--text2); }
+  .road-item:last-child { border-bottom:none; }
+
+  .tools-wrap { display:flex; flex-wrap:wrap; gap:.35rem; }
+  .tool       { font-size:.7rem; padding:.25rem .6rem; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text2); }
+
+  .adv-list  { display:flex; flex-direction:column; gap:.6rem; }
+  .adv-item  { padding:.65rem; background:var(--bg3); border:1px solid var(--border); border-radius:8px; }
+  .adv-title { font-size:.78rem; font-weight:600; margin-bottom:.18rem; }
+  .adv-desc  { font-size:.68rem; color:var(--text3); line-height:1.55; }
+
+  /* Learning */
+  .learning-section { margin-top:1.2rem; }
+  .learn-title { font-size:clamp(1.2rem,2.5vw,1.5rem); font-weight:700; letter-spacing:-.02em; margin-bottom:.4rem; }
+
+  .cert-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .ctab {
+    display:flex; align-items:center; gap:.45rem;
+    font-size:.78rem; font-weight:500; padding:.38rem .95rem;
+    border:1px solid var(--border); background:transparent;
+    color:var(--text3); border-radius:99px; cursor:pointer; transition:all .15s;
+  }
+  .ctab:hover  { color:var(--text2); background:var(--bg2); }
+  .ctab.active { background:var(--blue); border-color:var(--blue); color:var(--text); font-weight:600; }
+  .ctab-dot  { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .dot-done  { background:#4ade80; }
+  .dot-wip   { background:#fbbf24; }
+  .dot-next  { background:var(--text3); }
+
+  .cert-panel        { display:none; }
+  .cert-panel.active { display:block; }
+
+  .wip-card  { background:var(--bg2); border:1px solid rgba(251,191,36,.2); border-radius:12px; padding:3rem; text-align:center; }
+  .wip-icon  { font-size:2.5rem; display:block; margin-bottom:1rem; }
+  .wip-title { font-size:1rem; font-weight:600; margin-bottom:.5rem; }
+  .wip-text  { font-size:.82rem; color:var(--text2); margin-bottom:1.2rem; line-height:1.65; }
+  .wip-bar   { background:var(--bg3); border-radius:99px; height:4px; overflow:hidden; max-width:300px; margin:0 auto .4rem; }
+  .wip-fill  { height:100%; background:linear-gradient(90deg,#fbbf24,#f59e0b); border-radius:99px; }
+
+  /* Review */
+  .review-card  { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.8rem; display:grid; grid-template-columns:1fr 240px; gap:2rem; margin-bottom:1.2rem; }
+  .review-badge { display:inline-flex; align-items:center; gap:.4rem; background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.2); border-radius:99px; padding:.25rem .8rem; font-size:.62rem; font-weight:600; color:#4ade80; margin-bottom:.9rem; }
+  .badge-done { background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.2); color:#4ade80; }
+  .badge-wip  { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.2); color:#fbbf24; }
+  .review-title { font-size:1.05rem; font-weight:700; margin-bottom:.65rem; }
+  .review-text  { font-size:.82rem; color:var(--text2); line-height:1.75; margin-bottom:.9rem; }
+  .tips-section { margin-bottom:.9rem; }
+  .tips-label   { font-size:.6rem; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip-item     { font-size:.78rem; color:var(--text2); display:flex; gap:.4rem; align-items:baseline; padding:.18rem 0; }
+  .tip-arrow    { color:var(--blue3); font-size:.65rem; flex-shrink:0; }
+  .review-tags  { display:flex; flex-wrap:wrap; gap:.3rem; }
+  .rtag         { font-size:.62rem; padding:.2rem .55rem; background:var(--bg3); border:1px solid var(--border); border-radius:5px; color:var(--text2); }
+
+  .review-stats { display:flex; flex-direction:column; gap:.55rem; }
+  .rstat        { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:.65rem .85rem; display:flex; align-items:center; gap:.6rem; }
+  .rstat-icon   { font-size:1rem; width:24px; text-align:center; flex-shrink:0; }
+  .rstat-label  { font-size:.58rem; color:var(--text3); margin-bottom:.06rem; }
+  .rstat-value  { font-size:.8rem; font-weight:600; }
+  .rstat-value.green   { color:#4ade80; }
+  .rstat-value.yellow  { color:#fbbf24; }
+  .rstat-value.wip     { color:#fbbf24; }
+  .rstat-value.neutral { color:var(--text2); }
+
+  /* Content */
+  .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
+  .right-col    { display:flex; flex-direction:column; gap:1rem; }
+  .ejpt-card    { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.4rem; }
+  .ejpt-ey      { font-size:.58rem; font-weight:600; color:var(--blue3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; }
+  .ejpt-h4      { font-size:.88rem; font-weight:600; margin-bottom:.9rem; }
+
+  /* Courses */
+  .course-list { display:flex; flex-direction:column; gap:.6rem; }
+  .course-item { background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:.9rem 1rem; position:relative; overflow:hidden; transition:border-color .15s; }
+  .course-item::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--blue); transform:scaleY(0); transition:transform .2s; transform-origin:bottom; }
+  .course-item.expanded { border-color:rgba(59,91,219,.35); }
+  .course-item.expanded::before { transform:scaleY(1); }
+  .course-header { display:flex; align-items:center; gap:.7rem; cursor:pointer; }
+  .course-logo   { width:34px; height:34px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; }
+  .cl-ine { background:rgba(59,91,219,.15); color:var(--blue3); border:1px solid rgba(59,91,219,.2); }
+  .cl-tcm { background:rgba(251,191,36,.1);  color:#fbbf24; border:1px solid rgba(251,191,36,.2); }
+  .cl-htb { background:rgba(74,222,128,.1);  color:#4ade80; border:1px solid rgba(74,222,128,.2); }
+  .cl-thm { background:rgba(248,113,113,.1); color:#f87171; border:1px solid rgba(248,113,113,.2); }
+  .course-info   { flex:1; min-width:0; }
+  .course-name   { font-size:.82rem; font-weight:600; margin-bottom:.1rem; }
+  .course-meta   { font-size:.65rem; color:var(--text3); }
+  .course-right  { display:flex; align-items:center; gap:.5rem; flex-shrink:0; }
+  .course-status { font-size:.65rem; font-weight:700; color:#4ade80; }
+  .course-notes-btn { font-size:.62rem; font-weight:600; color:var(--blue3); background:rgba(59,91,219,.1); border:1px solid rgba(59,91,219,.25); padding:.2rem .55rem; border-radius:5px; text-decoration:none; white-space:nowrap; transition:all .15s; }
+  .course-notes-btn:hover { background:rgba(59,91,219,.2); color:var(--text); }
+
+  .course-modules { padding-top:.75rem; margin-top:.75rem; border-top:1px solid var(--border); }
+  .mod-grid { display:flex; flex-direction:column; gap:.2rem; }
+  .mod-row  { display:flex; align-items:center; gap:.5rem; padding:.3rem .4rem; border-radius:5px; transition:background .1s; }
+  .mod-row:hover { background:rgba(255,255,255,.03); }
+  .mod-n    { font-family:var(--font-mono); font-size:.58rem; color:var(--text3); width:20px; flex-shrink:0; }
+  .mod-name { flex:1; font-size:.72rem; color:var(--text2); line-height:1.4; }
+
+  .expand-btn { display:flex; align-items:center; gap:.3rem; margin-top:.5rem; font-size:.62rem; color:var(--blue3); background:none; border:none; cursor:pointer; padding:0; transition:color .15s; }
+  .expand-btn:hover { color:var(--blue2); }
+  .expand-btn svg   { transition:transform .2s; }
+
+  /* Machines */
+  .machine-list { display:flex; flex-direction:column; gap:.45rem; margin-bottom:.6rem; }
+  .machine-item { display:grid; grid-template-columns:36px 1fr auto; gap:.7rem; align-items:center; padding:.6rem; background:var(--bg3); border:1px solid var(--border); border-radius:7px; transition:border-color .15s; }
+  .machine-item:hover { border-color:rgba(59,91,219,.3); }
+  .m-diff { width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:.5rem; font-weight:700; border-radius:6px; }
+  .md-easy { background:rgba(74,222,128,.1); color:#4ade80; border:1px solid rgba(74,222,128,.22); }
+  .md-med  { background:rgba(251,191,36,.1); color:#fbbf24; border:1px solid rgba(251,191,36,.22); }
+  .md-hard { background:rgba(248,113,113,.1);color:#f87171; border:1px solid rgba(248,113,113,.22); }
+  .m-name  { font-size:.78rem; font-weight:600; margin-bottom:.18rem; }
+  .m-tags  { display:flex; flex-wrap:wrap; gap:.2rem; }
+  .m-tag   { font-size:.58rem; color:var(--text3); background:var(--bg2); padding:.06rem .28rem; border-radius:3px; }
+  .m-plat  { font-size:.6rem; color:var(--text3); border:1px solid var(--border); padding:.12rem .38rem; border-radius:4px; white-space:nowrap; }
+
+  .show-more-btn { display:flex; align-items:center; gap:.35rem; width:100%; justify-content:center; padding:.55rem; font-size:.7rem; font-weight:500; color:var(--text3); background:var(--bg3); border:1px solid var(--border); border-radius:7px; cursor:pointer; transition:all .15s; }
+  .show-more-btn:hover { color:var(--blue3); border-color:rgba(59,91,219,.3); }
+  .show-more-btn svg   { transition:transform .2s; flex-shrink:0; }
+
+  /* Resources */
+  .res-grid { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; }
+  .res-item { background:var(--bg3); border:1px solid var(--border); border-radius:7px; padding:.75rem; text-decoration:none; transition:all .15s; display:block; }
+  .res-item:hover { border-color:rgba(59,91,219,.35); }
+  .res-header { display:flex; align-items:flex-start; justify-content:space-between; gap:.4rem; margin-bottom:.2rem; }
+  .res-name   { font-size:.75rem; font-weight:600; color:var(--text); }
+  .res-status { font-size:.65rem; font-weight:700; flex-shrink:0; }
+  .rs-done    { color:#4ade80; }
+  .rs-wip     { color:#fbbf24; }
+  .res-desc   { font-size:.65rem; color:var(--text3); line-height:1.45; }
+
+  /* Responsive */
+  @media (max-width:900px) {
+    .overview-grid { grid-template-columns:1fr; }
+    .review-card   { grid-template-columns:1fr; }
+    .review-stats  { flex-direction:row; flex-wrap:wrap; }
+    .rstat         { flex:1; min-width:130px; }
+    .content-grid  { grid-template-columns:1fr; }
+    .res-grid      { grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:640px) {
+    .page-inner    { padding: 1.2rem 1rem 4rem; }
+    .overview-grid { grid-template-columns:1fr; gap:.75rem; }
+    .review-card   { padding:1.2rem; gap:1rem; }
+    .review-stats  { flex-direction:column; }
+    .rstat         { min-width:unset; }
+    .content-grid  { grid-template-columns:1fr; gap:.75rem; }
+    .res-grid      { grid-template-columns:1fr; }
+    .cert-tabs     { gap:.35rem; }
+    .ctab          { font-size:.72rem; padding:.32rem .7rem; }
+    .ejpt-card     { padding:1rem; }
+    .sec-card      { padding:1.1rem; }
+    .machine-item  { grid-template-columns:32px 1fr auto; gap:.5rem; padding:.5rem; }
+    .course-right  { flex-direction:column; align-items:flex-end; gap:.3rem; }
+    .course-notes-btn { font-size:.58rem; }
+    .learn-title   { font-size:1.1rem; }
+    .wip-card      { padding:2rem 1.2rem; }
+  }
+  @media (max-width:400px) {
+    .overview-grid { gap:.6rem; }
+    .ctab          { font-size:.68rem; padding:.28rem .6rem; }
+  }
+</style>

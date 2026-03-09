@@ -1,0 +1,455 @@
+---
+// src/pages/index.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header     from '@/components/layout/Header.astro';
+import Footer     from '@/components/layout/Footer.astro';
+import {
+  profile, stats, experience, education,
+  skills, certifications,
+} from '@/data/cv-data.js';
+---
+
+<BaseLayout>
+  <Header />
+
+  <main style="padding-top: 60px; flex: 1; display: flex; flex-direction: column;">
+
+    <!-- ═══════════════════════════════════════ HERO ══ -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Backend Dev<br />&amp; <em style="color:#f87171">Red Teamer</em><br />en formación</h1>
+        <p class="hero-desc">
+          Construyo APIs y servicios backend en .NET, Python, Java y PHP con experiencia en Azure.
+          En transición activa hacia seguridad ofensiva — certificado eJPTv2, resolviendo máquinas
+          en HTB y THM.
+        </p>
+
+        <div class="hero-stack">
+          <span class="chip">.NET / C#</span>
+          <span class="chip">Python</span>
+          <span class="chip">Java</span>
+          <span class="chip">PHP</span>
+          <span class="chip">Azure</span>
+          <span class="chip">SQL Server</span>
+          <span class="chip">MySQL</span>
+          <span class="chip">PostgreSQL</span>
+          <span class="chip sec">HTB</span>
+          <span class="chip sec">THM</span>
+        </div>
+
+        <div class="hero-btns">
+          <a href="/portfolio" class="btn-blue">Ver Proyectos</a>
+          <a href="/writeups"  class="btn-out">Ver Writeups</a>
+        </div>
+      </div>
+
+      <!-- Terminal -->
+      <div class="terminal-card">
+        <div class="term-bar">
+          <span class="td td-r"></span>
+          <span class="td td-y"></span>
+          <span class="td td-g"></span>
+          <span class="term-title">whoami.sh</span>
+        </div>
+        <div class="term-body">
+          <p><span class="tp">┌──({profile.alias}㉿kali)-[~]</span></p>
+          <p><span class="tp">└─$ </span><span class="tc">cat profile.txt</span></p>
+          <span class="to"><span class="tb">nombre:</span>   {profile.name}</span>
+          <span class="to"><span class="tb">ubicación:</span> {profile.location}</span>
+          <span class="to"><span class="tb">certs:</span>    ICCA ✓ · AZ-900 ✓ · AZ-204 ✓</span>
+          <br />
+          <p><span class="tp">└─$ </span><span class="tc">cat skills.txt</span></p>
+          <span class="to"><span class="tb">backend:</span>   .NET · Python · Java · PHP</span>
+          <span class="to"><span class="tb">cloud:</span>     Azure</span>
+          <span class="to" style="color:#f87171"><span class="tb">offensive:</span> HTB · THM</span>
+          <br />
+          <a
+          href={profile.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          style="color:var(--text3); font-family:var(--font-mono); font-size:.72rem"
+          >
+            # {profile.github}
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ STATS ══ -->
+    <div class="stats-row">
+      {stats.map(s => (
+        <div class="stat">
+          <span class="stat-n">{s.value}</span>
+          <span class="stat-l">{s.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <!-- ═══════════════════════════════ SOBRE MÍ ══ -->
+    <section class="about-section">
+
+      <!-- Card lateral -->
+      <div class="about-sidebar">
+        <div class="about-card">
+          <div>
+            <div class="avatar">PT</div>
+          </div>
+          <div>
+            <div class="about-name">{profile.name}</div>
+            <div class="about-role">Backend Dev & Offensive Security</div>
+            <div class="about-loc">📍 {profile.location}</div>
+          </div>
+          <!-- Certs cloud -->
+          <div>
+            <div class="sg-title">Certificaciones Cloud</div>
+            <div class="cert-mini-list">
+              {certifications.cloud.map(c => (
+                <div class="cert-mini">
+                  <div class="cm-icon">{c.icon}</div>
+                  <div>
+                    <div class="cm-name">{c.name}</div>
+                    <div class="cm-sub">{c.full}</div>
+                  </div>
+                  <span class="cm-badge">✓</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Redes / Contacto -->
+          <div>
+            <div class="sg-title">Contacto & Redes</div>
+            <div class="social-links">
+              <a href={profile.linkedin} target="_blank" rel="noopener" class="social-link">
+                <span class="s-icon">💼</span>
+                <div>
+                  <span class="s-label">LinkedIn</span>
+                  <span class="s-handle">linkedin.com/in/percytaquila</span>
+                </div>
+              </a>
+              <a href={profile.github} target="_blank" rel="noopener" class="social-link">
+                <span class="s-icon">🐙</span>
+                <div>
+                  <span class="s-label">GitHub</span>
+                  <span class="s-handle">github.com/percytaquila</span>
+                </div>
+              </a>
+              <a href={`mailto:${profile.email}`} class="social-link">
+                <span class="s-icon">✉️</span>
+                <div>
+                  <span class="s-label">Email</span>
+                  <span class="s-handle">{profile.email}</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- CV Download -->
+          <div>
+            <div class="sg-title">CV</div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="about-main">
+        <p class="section-eyebrow">Sobre mí</p>
+        <h2 class="section-title">Dev con mentalidad<br />de atacante</h2>
+
+        <p class="about-text">
+          Soy Backend Developer en <strong>Data Consulting S.A.C.</strong> (Tacna, Perú) desde
+          Noviembre 2022, trabajando con .NET Framework, ASP.NET MVC, Java con Spring Boot y Azure. A lo largo de mi experiencia descubrí que comprender cómo se vulneran los sistemas me permite desarrollar soluciones más seguras y robustas. Por ello, actualmente estoy orientando mi crecimiento profesional hacia la seguridad ofensiva, preparándome para la certificación <strong>eJPTv2</strong>, practicando con máquinas de Hack The Box y TryHackMe, y trazando como siguiente objetivo la certificación <strong>eWPT</strong>.
+        </p>
+
+        <!-- Experiencia laboral -->
+        <div class="sg-title" style="margin-bottom: 1.2rem;">Experiencia laboral</div>
+
+        <!-- Data Consulting SAC — agrupa los dos roles -->
+        <div class="exp-company">
+          <div class="company-logo">DC</div>
+          <div class="company-info">
+            <div class="company-name">Data Consulting S.A.C.</div>
+            <div class="company-meta">3 años 4 meses · Tacna, Perú</div>
+
+            {experience.filter(e => e.company === "Data Consulting S.A.C.").map(role => (
+              <div class="exp-role">
+                <div class="role-info">
+                  <div class="role-title">{role.role}</div>
+                  <div class="role-period">{role.period} · {role.duration}</div>
+                  <div class="role-type">{role.type}</div>
+                  <ul class="role-bullets">
+                    {role.bullets.map(b => <li>{b}</li>)}
+                  </ul>
+                  <div class="role-skills">
+                    {role.skills.map(s => <span class="rs">{s}</span>)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- IDW — agrupa los dos roles -->
+        <div class="exp-company">
+          <div class="company-logo" style="color:#f97316;font-size:.75rem">idw</div>
+          <div class="company-info">
+            <div class="company-name">Innovation Web Development</div>
+            <div class="company-meta">8 meses · Tacna, Perú · En remoto</div>
+
+            {experience.filter(e => e.company === "Innovation Web Development").map(role => (
+              <div class="exp-role">
+                <div class="role-info">
+                  <div class="role-title">{role.role}</div>
+                  <div class="role-period">{role.period} · {role.duration}</div>
+                  <div class="role-type">{role.type}</div>
+                  <ul class="role-bullets">
+                    {role.bullets.map(b => <li>{b}</li>)}
+                  </ul>
+                  <div class="role-skills">
+                    {role.skills.map(s => <span class="rs">{s}</span>)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Educación -->
+        <div class="sg-title" style="margin-top: 2rem; margin-bottom: 1rem;">Educación</div>
+        {education.map(edu => (
+          <div class="exp-company">
+            <div class="company-logo" style="font-size:.6rem">🎓</div>
+            <div class="company-info">
+              <div class="company-name">{edu.institution}</div>
+              <div class="company-meta">{edu.degree} · {edu.period} · {edu.location}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* ── Hero ── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    align-items: center;
+    gap: 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5.5rem 2rem 4.5rem;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(59,91,219,.1); border: 1px solid rgba(59,91,219,.25);
+    border-radius: 99px; padding: 0.28rem 0.8rem;
+    font-size: 0.7rem; font-weight: 500; color: var(--blue3);
+    margin-bottom: 1.6rem;
+  }
+  .tag-dot {
+    width: 6px; height: 6px; background: var(--blue2);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+  h1 {
+    font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+    font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.03em; margin-bottom: 1.1rem;
+  }
+  h1 em { font-style: normal; color: var(--blue3); }
+
+  .cursor {
+    display: inline-block; width: 2px; height: 1em;
+    background: var(--blue2); animation: blink 1s step-end infinite; vertical-align: middle;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.8; margin-bottom: 1.8rem; max-width: 460px; }
+
+  .hero-stack { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 2rem; }
+  .chip {
+    font-size: 0.7rem; font-weight: 500; padding: 0.28rem 0.65rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text2); transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--blue); color: var(--text); }
+  .chip.sec { border-color: rgba(59,91,219,.35); color: var(--blue3); background: rgba(59,91,219,.08); }
+
+  .hero-btns { display: flex; gap: 0.8rem; }
+
+  /* Terminal */
+  .terminal-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.65rem 1rem; background: var(--bg3); border-bottom: 1px solid var(--border);
+  }
+  .td { width: 10px; height: 10px; border-radius: 50%; }
+  .td-r{background:#ff5f57} .td-y{background:#febc2e} .td-g{background:#28c840}
+  .term-title { font-family: var(--font-mono); font-size: .6rem; color: var(--text3); margin: 0 auto; }
+  .term-body {
+    padding: 1.2rem 1.4rem; font-family: var(--font-mono);
+    font-size: .75rem; line-height: 1.85;
+  }
+  .tp{color:var(--blue3)} .tc{color:var(--text)} .tg{color:#4ade80}
+  .tb{color:var(--blue3); font-weight:600}
+  .to { color: var(--text2); padding-left: 1rem; display: block; }
+
+  /* Stats */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .stat { padding: 1.6rem 2rem; border-right: 1px solid var(--border); transition: background .15s; }
+  .stat:last-child { border-right: none; }
+  .stat:hover { background: var(--bg3); }
+  .stat-n { font-size: 2rem; font-weight: 700; color: var(--blue3); letter-spacing: -.02em; display: block; margin-bottom: .2rem; }
+  .stat-l { font-size: .7rem; color: var(--text3); font-weight: 500; }
+
+  /* About section */
+  .about-section {
+    max-width: 1100px; margin: 0 auto; padding: 4.5rem 2rem;
+    display: grid; grid-template-columns: 280px 1fr; gap: 4rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .about-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.8rem;
+    display: flex; flex-direction: column; gap: 1.4rem; align-self: start;
+  }
+
+  .avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--blue), #1a2744);
+    border-radius: 12px; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 1.3rem; font-weight: 700;
+  }
+  .about-name { font-size: 1.05rem; font-weight: 700; margin-bottom: .15rem; }
+  .about-role { font-family: var(--font-mono); font-size: .62rem; color: var(--blue3); letter-spacing: .04em; }
+  .about-loc  { font-size: .72rem; color: var(--text3); margin-top: .25rem; }
+
+  .sg-title { font-size: .62rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .55rem; }
+
+  .skill-bars { display: flex; flex-direction: column; gap: .5rem; }
+  .sk-row {}
+  .sk-meta { display: flex; justify-content: space-between; font-size: .68rem; color: var(--text2); margin-bottom: .22rem; }
+  .sk-pct  { color: var(--text3); font-family: var(--font-mono); }
+  .sk-track { height: 3px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+  .sk-fill  { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue3)); border-radius: 99px; }
+
+  .cert-mini-list { display: flex; flex-direction: column; gap: .4rem; }
+  .cert-mini {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .45rem .6rem; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 7px;
+  }
+  .cm-icon { font-size: .85rem; }
+  .cm-name { font-size: .72rem; font-weight: 600; }
+  .cm-sub  { font-size: .6rem; color: var(--text3); }
+  .cm-badge {
+    margin-left: auto; font-size: .58rem; font-weight: 600;
+    padding: .15rem .4rem; border-radius: 4px;
+    background: rgba(74,222,128,.1); color: #4ade80; border: 1px solid rgba(74,222,128,.22);
+  }
+
+  .social-links { display: flex; flex-direction: column; gap: .4rem; }
+  .social-link {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .5rem .7rem; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 7px; text-decoration: none; transition: all .15s;
+  }
+  .social-link:hover { border-color: var(--blue); background: rgba(59,91,219,.08); }
+  .s-icon { font-size: .9rem; width: 18px; text-align: center; }
+  .s-label { font-size: .7rem; font-weight: 600; color: var(--text); display: block; }
+  .s-handle { font-size: .62rem; color: var(--text3); font-family: var(--font-mono); }
+
+  /* About main */
+  .about-text { font-size: .88rem; color: var(--text2); line-height: 1.85; margin-bottom: 1.8rem; }
+  .about-text strong { color: var(--text); }
+
+  /* Experience */
+  .exp-company { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.8rem; padding-bottom: 1.8rem; border-bottom: 1px solid var(--border); }
+  .exp-company:last-of-type { border-bottom: none; }
+
+  .company-logo {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: var(--bg3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 700; color: var(--blue3);
+    font-family: var(--font-mono); flex-shrink: 0;
+  }
+  .company-name { font-size: .95rem; font-weight: 700; margin-bottom: .1rem; }
+  .company-meta { font-size: .7rem; color: var(--text3); margin-bottom: .8rem; }
+
+  .exp-role { padding-left: .8rem; border-left: 2px solid var(--border); position: relative; margin-bottom: 1rem; }
+  .exp-role::before {
+    content: ''; position: absolute; left: -.38rem; top: .35rem;
+    width: 8px; height: 8px; background: var(--blue);
+    border: 2px solid var(--bg); border-radius: 50%;
+  }
+  .role-title  { font-size: .85rem; font-weight: 600; margin-bottom: .1rem; }
+  .role-period { font-family: var(--font-mono); font-size: .62rem; color: var(--blue3); margin-bottom: .1rem; }
+  .role-type   { font-size: .68rem; color: var(--text3); margin-bottom: .5rem; }
+  .role-bullets { padding-left: 1rem; display: flex; flex-direction: column; gap: .3rem; margin-bottom: .5rem; }
+  .role-bullets li { font-size: .78rem; color: var(--text2); line-height: 1.6; }
+  .role-skills { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .rs { font-size: .6rem; color: var(--text3); background: var(--bg3); padding: .12rem .38rem; border-radius: 4px; border: 1px solid var(--border); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr 340px; gap: 2.5rem; }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      padding: 3.5rem 1.5rem 3rem;
+      gap: 2.5rem;
+    }
+    .terminal-card { display: none; }
+    .hero-desc { max-width: 100%; }
+
+    .about-section {
+      grid-template-columns: 1fr;
+      padding: 3rem 1.5rem;
+      gap: 2rem;
+    }
+    .about-sidebar { order: 2; }
+    .about-main    { order: 1; }
+    .about-card    { padding: 1.3rem; }
+
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stat { padding: 1.2rem 1.5rem; }
+    .stat-n { font-size: 1.6rem; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 2.5rem 1rem 2rem; }
+    h1 { font-size: clamp(1.9rem, 7vw, 2.8rem); }
+    .hero-btns { flex-direction: column; }
+    .hero-btns .btn-blue,
+    .hero-btns .btn-out { text-align: center; justify-content: center; }
+
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stat { padding: 1rem; }
+    .stat-n { font-size: 1.4rem; }
+
+    .about-section { padding: 2rem 1rem; gap: 1.5rem; }
+    .exp-company { flex-direction: column; }
+    .company-logo { width: 36px; height: 36px; }
+    .role-bullets li { font-size: .76rem; }
+  }
+</style>

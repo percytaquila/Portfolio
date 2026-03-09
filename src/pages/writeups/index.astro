@@ -1,0 +1,148 @@
+---
+// src/pages/writeups/index.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header     from '@/components/layout/Header.astro';
+import Footer     from '@/components/layout/Footer.astro';
+import { writeups } from '@/data/cv-data.js';
+
+const diffClass: Record<string, string> = {
+  easy:   'wd-e',
+  medium: 'wd-m',
+  hard:   'wd-h',
+  insane: 'wd-i',
+};
+const diffLabel: Record<string, string> = {
+  easy: 'EASY', medium: 'MED', hard: 'HARD', insane: 'INS',
+};
+const osIcon: Record<string, string> = {
+  Linux: '🐧', Windows: '🪟',
+};
+
+const platforms = [...new Set(writeups.map(w => w.platform))];
+const diffs     = [...new Set(writeups.map(w => w.diff))];
+const techs     = [...new Set(writeups.flatMap(w => w.tags))].slice(0, 8);
+---
+
+<BaseLayout title="Writeups — Percy Taquila">
+  <Header />
+
+  <main style="padding-top: 60px; flex: 1; display: flex; flex-direction: column;">
+    <div class="writeups-layout">
+
+      <!-- Sidebar -->
+      <aside class="w-sidebar">
+        <div class="ws-section">
+          <div class="ws-label">Plataforma</div>
+          {platforms.map(p => (
+            <div class="ws-item" data-filter-platform={p}>
+              {p}
+              <span class="ws-c">{writeups.filter(w => w.platform === p).length}</span>
+            </div>
+          ))}
+        </div>
+        <div class="ws-section">
+          <div class="ws-label">Dificultad</div>
+          {diffs.map(d => (
+            <div class="ws-item" data-filter-diff={d}>
+              {diffLabel[d] ?? d}
+              <span class="ws-c">{writeups.filter(w => w.diff === d).length}</span>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="w-main">
+        <div class="page-header">
+          <p class="section-eyebrow">Offensive Security</p>
+          <h1 class="section-title">Writeups</h1>
+          <p class="page-sub">Solo máquinas retiradas · {writeups.length} writeups publicados.</p>
+        </div>
+
+        <div id="writeups-list">
+          {writeups.map(wu => (
+            <div
+              class="wu-item"
+              data-platform={wu.platform}
+              data-diff={wu.diff}
+              data-tags={wu.tags.join(',')}
+            >
+              <div class={`wu-diff ${diffClass[wu.diff]}`}>{diffLabel[wu.diff] ?? wu.diff}</div>
+              <div>
+                <div class="wu-title">{wu.title}</div>
+                <div class="wu-tags">
+                  {wu.tags.map(tag => <span class="wu-tag">{tag}</span>)}
+                </div>
+                <div class="wu-sub">{osIcon[wu.os] ?? '💻'} {wu.os} · {wu.date}</div>
+              </div>
+              <div class="wu-plat">{wu.platform}</div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Sidebar filter
+  document.querySelectorAll('.ws-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const el = item as HTMLElement;
+      const section = el.closest('.ws-section')!;
+
+      // Toggle active in section
+      section.querySelectorAll('.ws-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      const platform = el.dataset.filterPlatform;
+      const diff     = el.dataset.filterDiff;
+      const tag      = el.dataset.filterTag;
+
+      document.querySelectorAll<HTMLElement>('.wu-item').forEach(wu => {
+        let show = true;
+        if (platform && wu.dataset.platform !== platform) show = false;
+        if (diff     && wu.dataset.diff !== diff)         show = false;
+        if (tag      && !wu.dataset.tags?.split(',').includes(tag)) show = false;
+        wu.style.display = show ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+<style>
+  .writeups-layout { display: grid; grid-template-columns: 210px 1fr; flex: 1; }
+
+  .w-sidebar { border-right: 1px solid var(--border); padding: 1.8rem 0; }
+  .ws-section { margin-bottom: 1.6rem; }
+  .ws-label { font-size: .58rem; font-weight: 600; color: var(--text3); letter-spacing: .12em; text-transform: uppercase; padding: 0 1.1rem; margin-bottom: .35rem; }
+  .ws-item  { display: flex; align-items: center; justify-content: space-between; padding: .42rem 1.1rem; font-size: .78rem; color: var(--text2); cursor: pointer; transition: all .12s; border-left: 2px solid transparent; }
+  .ws-item:hover, .ws-item.active { color: var(--text); background: rgba(59,91,219,.07); border-left-color: var(--blue); }
+  .ws-item.active { color: var(--blue3); }
+  .ws-c { font-family: var(--font-mono); font-size: .58rem; color: var(--text3); background: var(--bg3); padding: .08rem .32rem; border-radius: 3px; }
+
+  .w-main { padding: 2rem 2.5rem; }
+
+  .wu-item { display: grid; grid-template-columns: 42px 1fr auto; gap: 1.1rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: all .12s; }
+  .wu-item:hover { background: rgba(59,91,219,.04); margin-inline: -.4rem; padding-inline: .4rem; }
+  .wu-item:last-child { border-bottom: none; }
+
+  .wu-diff { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .52rem; font-weight: 700; border-radius: 7px; flex-shrink: 0; }
+  .wd-e { background: rgba(74,222,128,.1);  color: #4ade80; border: 1px solid rgba(74,222,128,.22); }
+  .wd-m { background: rgba(251,191,36,.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,.22); }
+  .wd-h { background: rgba(248,113,113,.1); color: #f87171; border: 1px solid rgba(248,113,113,.22); }
+  .wd-i { background: rgba(168,85,247,.1);  color: #c084fc; border: 1px solid rgba(168,85,247,.22); }
+
+  .wu-title { font-size: .88rem; font-weight: 600; margin-bottom: .22rem; }
+  .wu-tags  { display: flex; flex-wrap: wrap; gap: .22rem; margin-bottom: .18rem; }
+  .wu-tag   { font-size: .58rem; color: var(--text3); background: var(--bg3); padding: .08rem .32rem; border-radius: 3px; }
+  .wu-sub   { font-family: var(--font-mono); font-size: .58rem; color: var(--text3); }
+  .wu-plat  { font-size: .6rem; color: var(--text3); border: 1px solid var(--border); padding: .18rem .45rem; border-radius: 5px; white-space: nowrap; }
+
+  @media (max-width: 700px) {
+    .writeups-layout { grid-template-columns: 1fr; }
+    .w-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
