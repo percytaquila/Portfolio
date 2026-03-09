@@ -18,9 +18,10 @@ const osIcon: Record<string, string> = {
   Linux: '🐧', Windows: '🪟',
 };
 
-const platforms = [...new Set(writeups.map(w => w.platform))];
-const diffs     = [...new Set(writeups.map(w => w.diff))];
-const techs     = [...new Set(writeups.flatMap(w => w.tags))].slice(0, 8);
+const platforms = [...new Set(writeups.map((w: any) => w.platform))];
+const diffs     = [...new Set(writeups.map((w: any) => w.diff))];
+
+const PAGE_SIZE = 10;
 ---
 
 <BaseLayout title="Writeups — Percy Taquila">
@@ -33,45 +34,69 @@ const techs     = [...new Set(writeups.flatMap(w => w.tags))].slice(0, 8);
       <aside class="w-sidebar">
         <div class="ws-section">
           <div class="ws-label">Plataforma</div>
-          {platforms.map(p => (
-            <div class="ws-item" data-filter-platform={p}>
+          <div class="ws-item active" data-filter-type="platform" data-filter-val="">
+            Todas
+            <span class="ws-c">{writeups.length}</span>
+          </div>
+          {platforms.map((p: any) => (
+            <div class="ws-item" data-filter-type="platform" data-filter-val={p}>
               {p}
-              <span class="ws-c">{writeups.filter(w => w.platform === p).length}</span>
+              <span class="ws-c">{writeups.filter((w: any) => w.platform === p).length}</span>
             </div>
           ))}
         </div>
         <div class="ws-section">
           <div class="ws-label">Dificultad</div>
-          {diffs.map(d => (
-            <div class="ws-item" data-filter-diff={d}>
+          <div class="ws-item active" data-filter-type="diff" data-filter-val="">
+            Todas
+            <span class="ws-c">{writeups.length}</span>
+          </div>
+          {diffs.map((d: any) => (
+            <div class="ws-item" data-filter-type="diff" data-filter-val={d}>
+              <span class={`diff-dot diff-${d}`}></span>
               {diffLabel[d] ?? d}
-              <span class="ws-c">{writeups.filter(w => w.diff === d).length}</span>
+              <span class="ws-c">{writeups.filter((w: any) => w.diff === d).length}</span>
             </div>
           ))}
         </div>
       </aside>
 
       <!-- Main -->
-      <main class="w-main">
+      <div class="w-main">
         <div class="page-header">
           <p class="section-eyebrow">Offensive Security</p>
           <h1 class="section-title">Writeups</h1>
-          <p class="page-sub">Solo máquinas retiradas · {writeups.length} writeups publicados.</p>
+          <p class="page-sub">Solo máquinas retiradas · <span id="total-count">{writeups.length}</span> writeups publicados.</p>
         </div>
 
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="6" cy="6" r="4"/><line x1="10" y1="10" x2="13" y2="13"/>
+          </svg>
+          <input id="wu-search" class="search-input" type="text" placeholder="Buscar por nombre, plataforma, tag..." autocomplete="off" />
+          <button id="search-clear" class="search-clear" style="display:none">✕</button>
+        </div>
+
+        <!-- Active filters chips -->
+        <div id="active-filters" class="active-filters" style="display:none"></div>
+
+        <!-- List -->
         <div id="writeups-list">
-          {writeups.map(wu => (
+          {writeups.map((wu: any, idx: number) => (
             <div
               class="wu-item"
               data-platform={wu.platform}
               data-diff={wu.diff}
               data-tags={wu.tags.join(',')}
+              data-title={wu.title.toLowerCase()}
+              data-idx={idx}
             >
               <div class={`wu-diff ${diffClass[wu.diff]}`}>{diffLabel[wu.diff] ?? wu.diff}</div>
               <div>
                 <div class="wu-title">{wu.title}</div>
                 <div class="wu-tags">
-                  {wu.tags.map(tag => <span class="wu-tag">{tag}</span>)}
+                  {wu.tags.map((tag: string) => <span class="wu-tag">{tag}</span>)}
                 </div>
                 <div class="wu-sub">{osIcon[wu.os] ?? '💻'} {wu.os} · {wu.date}</div>
               </div>
@@ -79,54 +104,235 @@ const techs     = [...new Set(writeups.flatMap(w => w.tags))].slice(0, 8);
             </div>
           ))}
         </div>
-      </main>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="empty-state" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-text">No se encontraron writeups</div>
+          <div class="empty-sub">Prueba con otros filtros o términos de búsqueda</div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="pagination"></div>
+      </div>
     </div>
   </main>
 
   <Footer />
+
+  <style is:global>
+  #pagination {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0 2rem;
+    margin-top: .8rem;
+    border-top: 1px solid var(--border);
+  }
+  .pg-info { font-family: var(--font-mono); font-size: .65rem; color: var(--text3); }
+  .pg-btns { display: flex !important; flex-direction: row !important; align-items: center; gap: .4rem; flex-wrap: nowrap; }
+  .pg-btn  {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 34px; height: 34px; padding: 0 .6rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text2); font-size: .78rem;
+    font-family: var(--font-mono); cursor: pointer; transition: all .15s;
+  }
+  .pg-btn:hover:not(:disabled) { border-color: rgba(59,91,219,.5); color: var(--blue3); background: rgba(59,91,219,.07); }
+  .pg-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 700; }
+  .pg-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .pg-dots { color: var(--text3); font-size: .78rem; padding: 0 .25rem; line-height: 34px; }
+
+  .chip { display: inline-flex; align-items: center; gap: .35rem; font-size: .7rem; background: rgba(59,91,219,.1); border: 1px solid rgba(59,91,219,.3); color: var(--blue3); padding: .22rem .55rem .22rem .75rem; border-radius: 99px; font-weight: 500; }
+  .chip button { display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; background: rgba(99,102,241,.25); border: none; color: var(--blue3); cursor: pointer; font-size: .58rem; border-radius: 50%; transition: background .12s; }
+  .chip button:hover { background: rgba(99,102,241,.5); color: #fff; }
+  .chip-clear-all { font-size: .68rem; color: var(--text3); background: none; border: 1px solid var(--border); padding: .22rem .65rem; border-radius: 99px; cursor: pointer; transition: all .12s; }
+  .chip-clear-all:hover { color: var(--text); border-color: var(--text2); background: var(--bg2); }
+</style>
+
 </BaseLayout>
 
 <script>
-  // Sidebar filter
-  document.querySelectorAll('.ws-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const el = item as HTMLElement;
-      const section = el.closest('.ws-section')!;
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let activePlatform = '';
+  let activeDiff = '';
+  let searchQuery = '';
 
-      // Toggle active in section
-      section.querySelectorAll('.ws-item').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
+  const allItems = Array.from(document.querySelectorAll<HTMLElement>('.wu-item'));
 
-      const platform = el.dataset.filterPlatform;
-      const diff     = el.dataset.filterDiff;
-      const tag      = el.dataset.filterTag;
+  function getFiltered() {
+    return allItems.filter(item => {
+      const platform = item.dataset.platform ?? '';
+      const diff     = item.dataset.diff ?? '';
+      const tags     = item.dataset.tags ?? '';
+      const title    = item.dataset.title ?? '';
+      if (activePlatform && platform !== activePlatform) return false;
+      if (activeDiff     && diff !== activeDiff)         return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!title.includes(q) && !platform.toLowerCase().includes(q) && !tags.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }
 
-      document.querySelectorAll<HTMLElement>('.wu-item').forEach(wu => {
-        let show = true;
-        if (platform && wu.dataset.platform !== platform) show = false;
-        if (diff     && wu.dataset.diff !== diff)         show = false;
-        if (tag      && !wu.dataset.tags?.split(',').includes(tag)) show = false;
-        wu.style.display = show ? '' : 'none';
+  function render() {
+    const filtered   = getFiltered();
+    const total      = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = 1;
+
+    const start     = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+    allItems.forEach(item => item.style.display = 'none');
+    pageItems.forEach(item => item.style.display = '');
+
+    document.getElementById('empty-state')!.style.display = total === 0 ? 'flex' : 'none';
+    document.getElementById('total-count')!.textContent   = String(total);
+
+    renderChips();
+    renderPagination(totalPages, total);
+  }
+
+  function renderChips() {
+    const container = document.getElementById('active-filters')!;
+    const chips: string[] = [];
+    if (activePlatform) chips.push(`<span class="chip" data-clear="platform">${activePlatform} <button>✕</button></span>`);
+    if (activeDiff)     chips.push(`<span class="chip" data-clear="diff">${activeDiff} <button>✕</button></span>`);
+    if (searchQuery)    chips.push(`<span class="chip" data-clear="search">"${searchQuery}" <button>✕</button></span>`);
+
+    if (chips.length === 0) { container.style.display = 'none'; return; }
+
+    container.style.display = 'flex';
+    container.innerHTML = chips.join('') + `<button class="chip-clear-all">Limpiar todo</button>`;
+
+    container.querySelectorAll<HTMLElement>('[data-clear]').forEach(el => {
+      el.querySelector('button')?.addEventListener('click', () => {
+        const type = el.dataset.clear!;
+        if (type === 'platform') { activePlatform = ''; updateSidebarActive('platform', ''); }
+        if (type === 'diff')     { activeDiff = '';     updateSidebarActive('diff', ''); }
+        if (type === 'search')   {
+          searchQuery = '';
+          (document.getElementById('wu-search') as HTMLInputElement).value = '';
+          document.getElementById('search-clear')!.style.display = 'none';
+        }
+        currentPage = 1; render();
       });
     });
+
+    container.querySelector('.chip-clear-all')?.addEventListener('click', () => {
+      activePlatform = ''; activeDiff = ''; searchQuery = '';
+      (document.getElementById('wu-search') as HTMLInputElement).value = '';
+      document.getElementById('search-clear')!.style.display = 'none';
+      updateSidebarActive('platform', '');
+      updateSidebarActive('diff', '');
+      currentPage = 1; render();
+    });
+  }
+
+  function renderPagination(totalPages: number, total: number) {
+    const pg = document.getElementById('pagination')!;
+    if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+    const start = (currentPage - 1) * PAGE_SIZE + 1;
+    const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+    let html = `<div class="pg-info">${start}–${end} de ${total}</div><div class="pg-btns">`;
+    html += `<button class="pg-btn" id="pg-prev" ${currentPage === 1 ? 'disabled' : ''}>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8,2 4,6 8,10"/></svg>
+    </button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - currentPage) > 1) {
+        if (i === 3 || i === totalPages - 2) html += `<span class="pg-dots">…</span>`;
+        continue;
+      }
+      html += `<button class="pg-btn pg-num ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+
+    html += `<button class="pg-btn" id="pg-next" ${currentPage === totalPages ? 'disabled' : ''}>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,2 8,6 4,10"/></svg>
+    </button></div>`;
+
+    pg.innerHTML = html;
+
+    pg.querySelector('#pg-prev')?.addEventListener('click', () => { currentPage--; render(); window.scrollTo({top:300,behavior:'smooth'}); });
+    pg.querySelector('#pg-next')?.addEventListener('click', () => { currentPage++; render(); window.scrollTo({top:300,behavior:'smooth'}); });
+    pg.querySelectorAll('.pg-num').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt((btn as HTMLElement).dataset.page!);
+        render();
+        window.scrollTo({top:300,behavior:'smooth'});
+      });
+    });
+  }
+
+  function updateSidebarActive(type: string, val: string) {
+    document.querySelectorAll<HTMLElement>(`[data-filter-type="${type}"]`).forEach(el => {
+      el.classList.toggle('active', el.dataset.filterVal === val);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('.ws-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const type = item.dataset.filterType!;
+      const val  = item.dataset.filterVal!;
+      if (type === 'platform') { activePlatform = val; updateSidebarActive('platform', val); }
+      if (type === 'diff')     { activeDiff = val;     updateSidebarActive('diff', val); }
+      currentPage = 1; render();
+    });
   });
+
+  const searchInput = document.getElementById('wu-search') as HTMLInputElement;
+  const searchClear = document.getElementById('search-clear')!;
+
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim();
+    searchClear.style.display = searchQuery ? 'flex' : 'none';
+    currentPage = 1; render();
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchQuery = ''; searchInput.value = '';
+    searchClear.style.display = 'none';
+    currentPage = 1; render();
+  });
+
+  render();
 </script>
 
 <style>
-  .writeups-layout { display: grid; grid-template-columns: 210px 1fr; flex: 1; }
+  .writeups-layout { display: grid; grid-template-columns: 210px 1fr; flex: 1; min-height: calc(100vh - 60px); }
 
-  .w-sidebar { border-right: 1px solid var(--border); padding: 1.8rem 0; }
+  .w-sidebar { border-right: 1px solid var(--border); padding: 1.8rem 0; position: sticky; top: 60px; height: fit-content; }
   .ws-section { margin-bottom: 1.6rem; }
   .ws-label { font-size: .58rem; font-weight: 600; color: var(--text3); letter-spacing: .12em; text-transform: uppercase; padding: 0 1.1rem; margin-bottom: .35rem; }
-  .ws-item  { display: flex; align-items: center; justify-content: space-between; padding: .42rem 1.1rem; font-size: .78rem; color: var(--text2); cursor: pointer; transition: all .12s; border-left: 2px solid transparent; }
+  .ws-item  { display: flex; align-items: center; gap: .4rem; padding: .42rem 1.1rem; font-size: .78rem; color: var(--text2); cursor: pointer; transition: all .12s; border-left: 2px solid transparent; }
   .ws-item:hover, .ws-item.active { color: var(--text); background: rgba(59,91,219,.07); border-left-color: var(--blue); }
   .ws-item.active { color: var(--blue3); }
-  .ws-c { font-family: var(--font-mono); font-size: .58rem; color: var(--text3); background: var(--bg3); padding: .08rem .32rem; border-radius: 3px; }
+  .ws-c { font-family: var(--font-mono); font-size: .58rem; color: var(--text3); background: var(--bg3); padding: .08rem .32rem; border-radius: 3px; margin-left: auto; }
+  .diff-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .diff-easy   { background: #4ade80; }
+  .diff-medium { background: #fbbf24; }
+  .diff-hard   { background: #f87171; }
+  .diff-insane { background: #c084fc; }
 
   .w-main { padding: 2rem 2.5rem; }
 
+  .search-wrap  { position: relative; margin-bottom: .75rem; }
+  .search-icon  { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+  .search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .9rem .6rem 2.4rem; font-size: .82rem; color: var(--text); outline: none; transition: border-color .15s; box-sizing: border-box; }
+  .search-input::placeholder { color: var(--text3); }
+  .search-input:focus { border-color: rgba(59,91,219,.5); }
+  .search-clear { position: absolute; right: .7rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); cursor: pointer; font-size: .72rem; display: flex; align-items: center; padding: .15rem .3rem; border-radius: 4px; transition: color .12s; }
+  .search-clear:hover { color: var(--text); }
+
+  .active-filters { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .75rem; align-items: center; }
   .wu-item { display: grid; grid-template-columns: 42px 1fr auto; gap: 1.1rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: all .12s; }
-  .wu-item:hover { background: rgba(59,91,219,.04); margin-inline: -.4rem; padding-inline: .4rem; }
+  .wu-item:hover { background: rgba(59,91,219,.04); margin-inline: -.4rem; padding-inline: .4rem; border-radius: 6px; }
   .wu-item:last-child { border-bottom: none; }
 
   .wu-diff { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .52rem; font-weight: 700; border-radius: 7px; flex-shrink: 0; }
@@ -141,8 +347,19 @@ const techs     = [...new Set(writeups.flatMap(w => w.tags))].slice(0, 8);
   .wu-sub   { font-family: var(--font-mono); font-size: .58rem; color: var(--text3); }
   .wu-plat  { font-size: .6rem; color: var(--text3); border: 1px solid var(--border); padding: .18rem .45rem; border-radius: 5px; white-space: nowrap; }
 
+  .empty-state { flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center; gap: .5rem; }
+  .empty-icon  { font-size: 2rem; }
+  .empty-text  { font-size: .92rem; font-weight: 600; color: var(--text2); }
+  .empty-sub   { font-size: .78rem; color: var(--text3); }
+
   @media (max-width: 700px) {
     .writeups-layout { grid-template-columns: 1fr; }
-    .w-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    .w-sidebar { position: static; border-right: none; border-bottom: 1px solid var(--border); padding: 1rem 0; display: flex; overflow-x: auto; }
+    .ws-section { margin-bottom: 0; min-width: max-content; padding: 0 .5rem; }
+    .ws-label  { padding: 0 .6rem; }
+    .ws-item   { padding: .35rem .6rem; font-size: .72rem; }
+    .w-main    { padding: 1.2rem 1rem; }
+    .pagination { flex-direction: column; gap: .75rem; align-items: center; }
+  .pg-btns    { flex-direction: row; }
   }
 </style>

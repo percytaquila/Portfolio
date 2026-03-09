@@ -23,16 +23,29 @@
       </div>
 
       <div class="f-col">
-      
+        <div class="f-col-title">Navegación</div>
+        <ul>
+          <li><a href="/">Inicio</a></li>
+          <li><a href="/portfolio">Portfolio</a></li>
+          <li><a href="/security">Seguridad</a></li>
+          <li><a href="/writeups">Writeups</a></li>
+        </ul>
       </div>
 
       <div class="f-col">
+        <div class="f-col-title">Stack</div>
+        <ul>
+          <li><a href="/portfolio">.NET / C#</a></li>
+          <li><a href="/portfolio">Spring Boot / Java</a></li>
+          <li><a href="/portfolio">Python / FastAPI</a></li>
+          <li><a href="/portfolio">Azure · DevOps</a></li>
+        </ul>
       </div>
 
       <div class="f-col">
         <div class="f-col-title">Contacto</div>
         <ul>
-          <li><a href="mailto:percy-taquila23@hotmail.com">percy-taquila23@hotmail.com</a></li>
+          <li><a href="mailto:tcpercyhuber.23@gmail.com">tcpercyhuber.23@gmail.com</a></li>
           <li><a href="https://linkedin.com/in/percytaquila" target="_blank">LinkedIn</a></li>
           <li><a href="https://github.com/percytaquila" target="_blank">GitHub</a></li>
           <li><a href="/cv/Percy_Taquila_CV.docx" download>Descargar CV</a></li>
@@ -45,6 +58,9 @@
       <p class="f-copy">
         © {new Date().getFullYear()} Percy Taquila Carazas · Hecho con
         <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+      </p>
+      <p class="f-status">
+        <span class="status-dot"></span> Disponible para proyectos freelance
       </p>
     </div>
   </div>
@@ -105,7 +121,22 @@
   }
   .f-copy { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text3); }
   .f-copy a { color: var(--blue3); text-decoration: none; }
-  .f-disc { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text3); }
+
+  .f-status {
+    display: flex; align-items: center; gap: .45rem;
+    font-family: var(--font-mono); font-size: 0.62rem; color: var(--text3);
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px rgba(74,222,128,.6);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .4; }
+  }
 
   @media (max-width: 768px) {
     .footer-top { grid-template-columns: 1fr 1fr; }

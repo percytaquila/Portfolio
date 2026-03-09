@@ -167,13 +167,6 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
                             <div class="course-info">
                               <div class="course-name">{course.name}</div>
                             </div>
-                            <div class="course-right">
-                              {course.mdxFile && (
-                                <a href={course.mdxFile} class="course-notes-btn" onclick="event.stopPropagation()">
-                                  Ver notas →
-                                </a>
-                              )}
-                            </div>
                           </div>
                           <div class="course-modules" id={`mod-${course.slug}`} style="display:none">
                             <div class="mod-grid">

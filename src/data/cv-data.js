@@ -882,7 +882,7 @@ export const writeups = [
     slug: "lab-api-sqli",
     title: "Lab — API SQLi (.NET)",
     platform: "Lab Propio",
-    diff: "easy",
+    diff: "hard",
     os: "Linux",
     date: "Oct 2024",
     tags: ["SQL Injection", "REST API", ".NET"],
