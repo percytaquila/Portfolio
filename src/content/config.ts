@@ -1,24 +1,20 @@
-// src/content/config.ts
 import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const certifications = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "**/*.{md,mdx}",
+    base: "./src/content/certifications",
+  }),
   schema: z.object({
     title: z.string(),
-    academy: z.string(),
-    instructor: z.string().optional(),
-    duration: z.string().optional(),
-    status: z.enum(["completed", "in-progress", "planned"]),
-    cert: z.string(),
-    url: z.string().url().optional(),
-    rating: z.number().min(1).max(5).optional(),
-    summary: z.string().optional(),
+    cert: z.string().optional(),
     modules: z
       .array(
         z.object({
           num: z.string(),
           title: z.string(),
-          status: z.enum(["done", "wip", "next"]),
+          status: z.enum(["done", "wip", "next"]).optional(),
         }),
       )
       .optional(),

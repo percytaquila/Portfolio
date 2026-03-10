@@ -222,6 +222,7 @@ export const certLearning = {
           {
             num: "02",
             title: "Host & Network Penetration Testing",
+            mdx: "/certifications/ejptv2/tcm-peh",
           },
           {
             num: "03",
@@ -412,32 +413,6 @@ export const certLearning = {
         tags: ["WordPress", "Brute Force"],
         platform: "THM",
         writeup: null,
-      },
-    ],
-    resources: [
-      {
-        name: "TCM Security — PEH",
-        desc: "Practical Ethical Hacking",
-        status: "done",
-        url: "https://academy.tcm-sec.com",
-      },
-      {
-        name: "HTB Academy",
-        desc: "Web Attacks y Footprinting",
-        status: "done",
-        url: "https://academy.hackthebox.com",
-      },
-      {
-        name: "TryHackMe Pre-Security",
-        desc: "Path completo de fundamentos",
-        status: "done",
-        url: "https://tryhackme.com",
-      },
-      {
-        name: "PortSwigger Academy",
-        desc: "Labs SQLi, XSS, SSRF — para BSCP",
-        status: "wip",
-        url: "https://portswigger.net/web-security",
       },
     ],
   },

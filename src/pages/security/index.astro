@@ -171,11 +171,15 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
                           <div class="course-modules" id={`mod-${course.slug}`} style="display:none">
                             <div class="mod-grid">
                               {course.modules.map(m => (
-                                <div class="mod-row">
-                                  <span class="mod-n">{m.num}</span>
+                              <div class="mod-row">
+                                <span class="mod-n">{m.num}</span>
+                                {m.mdx ? (
+                                  <a href={m.mdx} class="mod-name mod-link">{m.title}</a>
+                                ) : (
                                   <span class="mod-name">{m.title}</span>
-                                  <span style={`font-size:.65rem;font-weight:600;color:${statusColor[m.status]}`}>{statusIcon[m.status]}</span>
-                                </div>
+                                )}
+                                <span style={`font-size:.65rem;font-weight:600;color:${statusColor[m.status]}`}>{statusIcon[m.status]}</span>
+                              </div>
                               ))}
                             </div>
                           </div>
@@ -317,11 +321,27 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
   .sc-title  { font-size:.95rem; font-weight:600; margin-bottom:.9rem; }
 
   .cert-list { display:flex; flex-direction:column; gap:.5rem; }
-  .cert-item { display:flex; align-items:center; gap:.7rem; padding:.65rem; background:var(--bg3); border:1px solid var(--border); border-radius:8px; }
+  .cert-item {
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    align-items: center;
+    gap: .7rem;
+    padding: .65rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
   .c-icon    { width:34px; height:34px; background:rgba(59,91,219,.12); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
   .c-info    { flex:1; min-width:0; }
   .c-name    { font-size:.8rem; font-weight:600; }
-  .c-sub     { font-size:.62rem; color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .c-sub {
+    font-size: .62rem;
+    color: var(--text3);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.45;
+  }
   .c-badge   { font-size:.58rem; font-weight:600; padding:.18rem .45rem; border-radius:4px; flex-shrink:0; }
   .b-done    { background:rgba(74,222,128,.1); color:#4ade80; border:1px solid rgba(74,222,128,.22); }
   .b-wip     { background:rgba(251,191,36,.1);  color:#fbbf24; border:1px solid rgba(251,191,36,.22); }
@@ -410,7 +430,12 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
   .course-item::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--blue); transform:scaleY(0); transition:transform .2s; transform-origin:bottom; }
   .course-item.expanded { border-color:rgba(59,91,219,.35); }
   .course-item.expanded::before { transform:scaleY(1); }
-  .course-header { display:flex; align-items:center; gap:.7rem; cursor:pointer; }
+  .course-header {
+    display: flex;
+    align-items: flex-start;
+    gap: .7rem;
+    cursor: pointer;
+  }
   .course-logo   { width:34px; height:34px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; }
   .cl-ine { background:rgba(59,91,219,.15); color:var(--blue3); border:1px solid rgba(59,91,219,.2); }
   .cl-tcm { background:rgba(251,191,36,.1);  color:#fbbf24; border:1px solid rgba(251,191,36,.2); }
@@ -437,14 +462,30 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
 
   /* Machines */
   .machine-list { display:flex; flex-direction:column; gap:.45rem; margin-bottom:.6rem; }
-  .machine-item { display:grid; grid-template-columns:36px 1fr auto; gap:.7rem; align-items:center; padding:.6rem; background:var(--bg3); border:1px solid var(--border); border-radius:7px; transition:border-color .15s; }
+
+  .machine-item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: .7rem;
+    align-items: start;
+    padding: .6rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    transition: border-color .15s;
+  }
+
   .machine-item:hover { border-color:rgba(59,91,219,.3); }
   .m-diff { width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:.5rem; font-weight:700; border-radius:6px; }
   .md-easy { background:rgba(74,222,128,.1); color:#4ade80; border:1px solid rgba(74,222,128,.22); }
   .md-med  { background:rgba(251,191,36,.1); color:#fbbf24; border:1px solid rgba(251,191,36,.22); }
   .md-hard { background:rgba(248,113,113,.1);color:#f87171; border:1px solid rgba(248,113,113,.22); }
   .m-name  { font-size:.78rem; font-weight:600; margin-bottom:.18rem; }
-  .m-tags  { display:flex; flex-wrap:wrap; gap:.2rem; }
+  .m-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+  }
   .m-tag   { font-size:.58rem; color:var(--text3); background:var(--bg2); padding:.06rem .28rem; border-radius:3px; }
   .m-plat  { font-size:.6rem; color:var(--text3); border:1px solid var(--border); padding:.12rem .38rem; border-radius:4px; white-space:nowrap; }
 
@@ -462,6 +503,15 @@ const tabs = Object.entries(certLearning).map(([key, val]) => ({ key, label: val
   .rs-done    { color:#4ade80; }
   .rs-wip     { color:#fbbf24; }
   .res-desc   { font-size:.65rem; color:var(--text3); line-height:1.45; }
+
+  .mod-link {
+    color: var(--text2); text-decoration: none; 
+    transition: color .15s;
+  }
+  .mod-link:hover { 
+    color: var(--blue3); 
+    text-decoration: underline; 
+  }
 
   /* Responsive */
   @media (max-width:900px) {

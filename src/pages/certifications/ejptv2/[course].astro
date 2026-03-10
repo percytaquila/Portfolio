@@ -4,12 +4,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Header     from '@/components/layout/Header.astro';
 import Footer     from '@/components/layout/Footer.astro';
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const courses = await getCollection('certifications');
+  console.log('Courses:', courses.map(e => e.id));
   return courses.map(entry => ({
-    params: { course: entry.slug.split('/').pop() },
+    params: { course: entry.id.split('/').pop() },
     props:  { entry },
   }));
 }
@@ -22,7 +23,7 @@ const statusIcon = { done: '✓', wip: '→', next: '○' };
 const statusColor = { done: 'var(--green)', wip: 'var(--yellow)', next: 'var(--text3)' };
 ---
 
-<BaseLayout title={`${d.title} — ${d.academy} | Percy Taquila`}>
+<BaseLayout title={`${d.title} | Percy Taquila`}>
   <Header />
 
   <main style="padding-top: 60px; flex:1; display:flex; flex-direction:column;">
@@ -41,38 +42,6 @@ const statusColor = { done: 'var(--green)', wip: 'var(--yellow)', next: 'var(--t
 
         <!-- ── Sidebar ── -->
         <aside class="course-sidebar">
-          <div class="sidebar-card">
-            <div class="cs-academy">{d.academy}</div>
-            <div class="cs-title">{d.title}</div>
-
-            <div class="cs-meta-list">
-              <div class="cs-meta-item">
-                <span class="cs-meta-label">Instructor</span>
-                <span class="cs-meta-value">{d.instructor}</span>
-              </div>
-              <div class="cs-meta-item">
-                <span class="cs-meta-label">Duración</span>
-                <span class="cs-meta-value">{d.duration}</span>
-              </div>
-              <div class="cs-meta-item">
-                <span class="cs-meta-label">Estado</span>
-                <span class="cs-meta-value status-done">✓ Completado</span>
-              </div>
-              {d.rating && (
-                <div class="cs-meta-item">
-                  <span class="cs-meta-label">Rating</span>
-                  <span class="cs-meta-value">{'⭐'.repeat(d.rating)}</span>
-                </div>
-              )}
-            </div>
-
-            {d.url && (
-              <a href={d.url} target="_blank" rel="noopener" class="cs-link">
-                Ver curso →
-              </a>
-            )}
-          </div>
-
           <!-- Temario sidebar -->
           {d.modules && (
             <div class="sidebar-card">

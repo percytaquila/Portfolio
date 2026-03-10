@@ -25,6 +25,7 @@ const current = Astro.url.pathname;
         </li>
       ))}
     </ul>
+
     <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
       <span></span>
       <span></span>
@@ -33,25 +34,27 @@ const current = Astro.url.pathname;
   </nav>
 </header>
 
-<div class="nav-overlay" id="nav-overlay"></div>
-
 <script>
   const hamburger = document.getElementById('hamburger');
   const menu      = document.getElementById('nav-menu');
-  const overlay   = document.getElementById('nav-overlay');
 
   function toggleMenu(open) {
     hamburger?.classList.toggle('open', open);
     menu?.classList.toggle('open', open);
-    overlay?.classList.toggle('open', open);
     hamburger?.setAttribute('aria-expanded', String(open));
-    document.body.style.overflow = open ? 'hidden' : '';
   }
 
-  hamburger?.addEventListener('click', () => toggleMenu(!menu?.classList.contains('open')));
-  overlay?.addEventListener('click', () => toggleMenu(false));
+  hamburger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu(!menu?.classList.contains('open'));
+  });
 
-  // Close on link click (mobile)
+  document.addEventListener('click', (e) => {
+    if (menu?.classList.contains('open') && !menu.contains(e.target) && !hamburger?.contains(e.target)) {
+      toggleMenu(false);
+    }
+  });
+
   menu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toggleMenu(false)));
 </script>
 
@@ -76,27 +79,25 @@ const current = Astro.url.pathname;
   }
   .nav-logo span { color: var(--blue2); }
 
-  /* Desktop nav */
   .nav-links {
-    display: flex; gap: .2rem; list-style: none;
+    display: flex; gap: .2rem; list-style: none; margin: 0; padding: 0;
   }
   .nav-links a {
     font-size: .8rem; font-weight: 500; color: var(--text2);
     text-decoration: none; padding: .35rem .85rem; border-radius: 6px; transition: all .15s;
   }
-  .nav-links a:hover { color: var(--text); background: rgba(59,91,219,.12); }
+  .nav-links a:hover  { color: var(--text); background: rgba(59,91,219,.12); }
   .nav-links a.active { color: var(--blue3); background: rgba(59,91,219,.12); }
 
   .nav-cta {
-    font-size: .78rem; font-weight: 600; color: var(--text);
+    font-size: .78rem; font-weight: 600; color: #fff;
     background: var(--blue); padding: .42rem 1.1rem; border-radius: 7px;
-    text-decoration: none; transition: background .15s, transform .15s;
+    text-decoration: none; transition: background .15s;
   }
-  .nav-cta:hover { background: var(--blue2); transform: translateY(-1px); }
+  .nav-cta:hover { background: var(--blue2); }
 
   .mobile-cta { display: none; }
 
-  /* Hamburger */
   .hamburger {
     display: none; flex-direction: column; justify-content: space-between;
     width: 24px; height: 18px; background: none; border: none; cursor: pointer;
@@ -110,36 +111,58 @@ const current = Astro.url.pathname;
   .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
   .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
-  /* Overlay */
-  .nav-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
-    z-index: 98; backdrop-filter: blur(4px);
-  }
-  .nav-overlay.open { display: block; }
-
-  /* ── Mobile ── */
   @media (max-width: 768px) {
-    .desktop-cta { display: none; }
-    .hamburger   { display: flex; }
-    .mobile-cta  { display: block; padding: 0 .85rem; }
+    .hamburger { display: flex; }
+    .mobile-cta { display: block; }
 
     .nav-links {
-      position: fixed; top: 0; right: -100%; bottom: 0;
-      width: min(280px, 80vw);
-      flex-direction: column; gap: .25rem;
-      background: var(--bg2); border-left: 1px solid var(--border);
-      padding: 80px 1rem 2rem;
-      z-index: 99; transition: right .3s cubic-bezier(.4,0,.2,1);
+      position: fixed;
+      top: 70px;
+      right: 1rem;
+      width: min(280px, calc(100vw - 2rem));
+      margin: 0;
+      padding: .6rem;
+      flex-direction: column;
+      gap: .2rem;
+      list-style: none;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04);
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px) scale(.98);
+      transform-origin: top right;
+      transition: opacity .2s ease, transform .2s ease;
     }
-    .nav-links.open { right: 0; }
+
+    .nav-links.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .nav-links li { width: 100%; }
 
     .nav-links a {
-      font-size: .9rem; padding: .6rem .85rem;
-      display: block; border-radius: 8px;
+      display: block; width: 100%;
+      font-size: .88rem; padding: .7rem .9rem;
+      border-radius: 8px; color: var(--text2); box-sizing: border-box;
+    }
+    .nav-links a:hover  { background: rgba(59,91,219,.1); color: var(--text); }
+    .nav-links a.active { background: rgba(59,91,219,.12); color: var(--blue3); }
+
+    .mobile-cta {
+      margin-top: .3rem;
+      padding-top: .5rem;
+      border-top: 1px solid var(--border);
     }
     .mobile-cta .nav-cta {
       display: block; text-align: center;
-      margin-top: .5rem; padding: .7rem;
+      padding: .65rem; border-radius: 8px;
+      color: #fff; background: var(--blue);
     }
+    .mobile-cta .nav-cta:hover { background: var(--blue2); }
   }
 </style>
