@@ -91,13 +91,16 @@ import {
       <!-- Card lateral -->
       <div class="about-sidebar">
         <div class="about-card">
-          <div>
-            <div class="avatar">PT</div>
+          <div class="avatar-wrapper">
+            {profile.avatar 
+              ? <img src={profile.avatar} alt={profile.name} class="avatar-img" />
+              : <div class="avatar">PT</div>
+            }
           </div>
-          <div>
+          <div style="text-align: center;">
             <div class="about-name">{profile.name}</div>
             <div class="about-role">Backend Dev & Offensive Security</div>
-            <div class="about-loc">📍 {profile.location}</div>
+            <div class="about-loc">{profile.location}</div>
           </div>
           <!-- Certs cloud -->
           <div>
@@ -147,7 +150,12 @@ import {
           <!-- CV Download -->
           <div>
             <div class="sg-title">CV</div>
-            
+            <button id="btn-cv" class="btn-cv-download">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 1v8M4 6l3 3 3-3"/><rect x="2" y="10" width="10" height="2" rx="1"/>
+              </svg>
+              <span id="btn-cv-label">Descargar</span>
+            </button>
           </div>
         </div>
       </div>
@@ -230,6 +238,53 @@ import {
   </main>
 
   <Footer />
+
+  <script>
+  const btn   = document.getElementById('btn-cv') as HTMLButtonElement | null;
+  const label = document.getElementById('btn-cv-label');
+ 
+  btn?.addEventListener('click', async () => {
+    if (!btn || !label) return;
+ 
+    // Estado de carga
+    btn.disabled = true;
+    label.textContent = 'Generando...';
+    btn.classList.add('loading');
+ 
+    try {
+      const [{ generateCV }, cvData] = await Promise.all([
+        import('@/utils/generateCV'),
+        import('@/data/cv-data.js'),
+      ]);
+ 
+      await generateCV({
+        profile:        cvData.profile,
+        experience:     cvData.experience,
+        education:      cvData.education,
+        certifications: cvData.certifications,
+        skills:         cvData.skills,
+      });
+ 
+      label.textContent = '✓ Descargado';
+      btn.classList.remove('loading');
+      btn.classList.add('success');
+ 
+      setTimeout(() => {
+        label.textContent = 'Descargar';
+        btn.disabled = false;
+        btn.classList.remove('success');
+      }, 2500);
+ 
+    } catch (err) {
+      console.error('Error generando CV:', err);
+      label.textContent = 'Error — reintentar';
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+</script>
+
+
 </BaseLayout>
 
 <style>
@@ -450,4 +505,33 @@ import {
     .company-logo { width: 36px; height: 36px; }
     .role-bullets li { font-size: .76rem; }
   }
+
+  .btn-cv-download {
+    display: flex; align-items: center; gap: .6rem;
+    width: 100%; padding: .65rem 1rem;
+    background: var(--blue); border: none; border-radius: 8px;
+    color: #fff; font-size: .78rem; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-cv-download:hover    { background: var(--blue2); transform: translateY(-1px); }
+  .btn-cv-download.loading  { background: var(--bg3); color: var(--text3); cursor: not-allowed; }
+  .btn-cv-download.success  { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3); }
+  .cv-meta {
+    font-size: .58rem; color: var(--text3);
+    text-align: center; margin-top: .4rem;
+    font-family: var(--font-mono);
+  }
+
+.avatar-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: .5rem;
+}
+.avatar-img {
+  width: 110px; height: 110px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  object-fit: cover;
+}
 </style>

@@ -5,11 +5,12 @@ export const profile = {
   alias: "percytaquila",
   location: "Tacna, Perú",
   phone: "+51 956 69 29 15",
-  email: "tcpercyhuber.23@gmail.com",
+  email: "percy-taquila23@hotmail.com",
   linkedin: "https://linkedin.com/in/percytaquila",
   github: "https://github.com/percytaquila",
+  avatar: "/images/foto-perfil.png",
   summary:
-    "Desarrollador Backend con experiencia en C#, Python, PHP, Java y bases de datos SQL Server, MySQL, PostgreSQL. Certificado en Azure (AZ-900, AZ-204) con experiencia práctica en Application Insights, Blob Storage y Azure DevOps. En transición activa hacia seguridad ofensiva.",
+    "Desarrollador Backend con experiencia en lenguajes de programación como C , Python, PHP, Java y en bases de datos SQL Server, MySQL, PostgreSQL. Apasionado por la programación y la ciberseguridad, en el día a día me capacito de manera autodidacta para poder expandir mis conocimientos y de esta manera obtener nuevas habilidades y descubrir nuevos desafíos. En transición activa hacia seguridad ofensiva.",
 };
 
 export const stats = [
@@ -96,21 +97,11 @@ export const education = [
 ];
 
 export const skills = {
-  backend: [
-    ".NET Core",
-    "ASP.NET MVC",
-    "C#",
-    "Python",
-    "FastAPI",
-    "PHP",
-    "Laravel",
-    "Java",
-    "Spring Boot",
-  ],
-  orm: ["Entity Framework", "Dapper"],
-  cloud: ["Azure App Insights", "Blob Storage", "Azure DevOps", "App Services"],
-  databases: ["SQL Server", "MySQL", "PostgreSQL"],
-  security: [
+  languages: ["C#", "Python", "Java", "PHP"],
+  frameworks: [".NET Core", "ASP.NET MVC", "Spring Boot", "FastAPI", "Laravel"],
+  data: ["EF Core", "EF6", "Dapper", "SQL Server", "MySQL", "PostgreSQL"],
+  cloud: ["Azure", "AWS", "CI/CD", "Git", "Docker"],
+  /* security: [
     "Burp Suite",
     "nmap",
     "Metasploit",
@@ -119,8 +110,7 @@ export const skills = {
     "SQLMap",
     "Hydra",
     "hashcat",
-  ],
-  tools: ["Git", "Docker", "CI/CD"],
+  ], */
 };
 
 export const certifications = {
@@ -128,22 +118,16 @@ export const certifications = {
     {
       name: "AZ-900",
       full: "Azure Fundamentals",
-      issuer: "Microsoft",
-      icon: "☁️",
       done: true,
     },
     {
       name: "AZ-204",
       full: "Azure Developer Associate",
-      issuer: "Microsoft",
-      icon: "⚙️",
       done: true,
     },
     {
-      name: "INE CCA",
+      name: "ICCA",
       full: "INE Certified Cloud Associate",
-      issuer: "INE",
-      icon: "🌐",
       done: true,
     },
   ],
