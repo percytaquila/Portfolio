@@ -28,13 +28,17 @@ export const experience = [
     period: "Nov. 2022 — Actualidad",
     duration: "3 años 4 meses",
     bullets: [
-      "Desarrollo de un requerimiento en Java con Spring Boot para la carga de comprobantes electrónicos (facturas, PDF y CDR) asociados a pedidos, almacenándolos en Alfresco y posteriormente registrándolos en SAP mediante un endpoint.",
-      "Implementación de Application Insights y Blob Storage para la modernización y optimización del monitoreo en sistemas heredados.",
-      "Desarrollo de un servicio Windows para la obtención automática del tipo de cambio desde la SBS, integrado al sistema eFacturaPerú.",
+      "Implementación de un flujo de gestión de comprobantes electrónicos mediante Java con Spring Boot, automatizando el procesamiento de facturas, archivos PDF y CDR vinculados a pedidos comerciales",
+      "Desarrollé un Windows Service que consulta automáticamente los envíos a la autoridad aduanera (SUNAT/SEIDA) y actualiza el estado de los documentos en OperWeb, eliminando la consulta manual y reduciendo el tiempo operativo",
+      "Implementé en OperWeb el módulo de preparación, firma y envío de documentos de descarga de mercancía vía SOAP, con validación XML/XSD, manejo de errores e idempotencia.",
+      "Diseñé y construí un API REST con FastAPI para recomendaciones personalizadas consumida por un frontend en Flutter",
+      "Implementación de un servicio de Windows para la sincronización automatizada del tipo de cambio SBS con el sistema eFacturaPerú.",
+      "Implementación de Application Insights y Blob Storage para la modernización y optimización del monitoreo, almacenamiento y análisis de datos en sistemas heredados",
       "Desarrollo de servicios Windows para la lectura de archivos EDI para el puerto de Salaverry.",
-      "CI/CD con Azure DevOps reduciendo tiempos de despliegue en más del 80% para los sistemas del Puerto de Matarani – TISUR.",
-      "Desarrollo de servicios Windows para migrar guías de remisión hacia SUNAT.",
-      "Mantenimiento de App Services para migración de clientes, proveedores, artículos, boletas y facturas.",
+      "Mantenimiento del código fuente y desarrollo de nuevos requerimientos para sistemas legados del puerto de Matarani – TISUR",
+      "Implementar prácticas de CI/CD mediante Azure DevOps para mejorar la eficiencia en la entrega de software, reduciendo errores y tiempos de entrega bajando los tiempos de despliegue mis de un 80% para los Sistemas del Puerto de Matarani - TISUR",
+      "Desarrollo de Windows Service para migrar guías de remisión remitente, guías de remisión transportista hacia SUNAT.",
+      "Optimización y refactorización del Código, así como mantenimiento de los App Services responsables de la migración de información de clientes, proveedores, artículos, boletas y facturas.",
       "Mantenimiento y desarrollo del Sistema de Facturación Electrónica eFacturaPerú.",
     ],
     skills: [
@@ -218,18 +222,41 @@ export const certLearning = {
         logoClass: "cl-ine",
         mdxFile: null, // sin página interna todavía
         modules: [
-          { num: "01", title: "Networking Fundamentals" },
+          {
+            num: "01",
+            title: "Presentación y Preparación de Laboratorios",
+            mdx: "/certifications/ejptv2/curso-mario/01-preparacion-laboratorios",
+          },
           {
             num: "02",
-            title: "Host & Network Penetration Testing",
-            mdx: "/certifications/ejptv2/tcm-peh",
+            title: "Conceptos Básicos de Hacking",
+            mdx: "/certifications/ejptv2/curso-mario/02-conceptos-basicos",
           },
           {
             num: "03",
-            title: "Web Application Penetration Testing",
+            title: "Explotación de Vulnerabilidades y Ataques de Fuerza Bruta",
           },
-          { num: "04", title: "Metasploit Framework" },
-          { num: "05", title: "Network Pivoting & Tunneling" },
+          {
+            num: "04",
+            title: "Explotación vulnerabilidades Web",
+          },
+          {
+            num: "05",
+            title:
+              "Enumeración y Explotación del Procotolo SMB, SAMBA, SNMP, IIS y RDP",
+          },
+          {
+            num: "06",
+            title: "Hacking entornos CMS",
+          },
+          {
+            num: "07",
+            title: "Escalada de Privilegios y Post Explotación",
+          },
+          {
+            num: "08",
+            title: "Pivoting con Metasploit",
+          },
         ],
       },
       {
