@@ -3,6 +3,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Header     from '@/components/layout/Header.astro';
 import Footer     from '@/components/layout/Footer.astro';
+import { calcDuration } from '@/utils/duration';
 import {
   profile, stats, experience, education,
   skills, certifications,
@@ -19,15 +20,15 @@ import {
       <div class="hero-content">
         <h1>Backend Dev<br />&amp; <em style="color:#f87171">Red Teamer</em><br />en formación</h1>
         <p class="hero-desc">
-          Construyo APIs y servicios backend en .NET, Python, Java y PHP con experiencia en Azure.
+          Construyo APIs y servicios backend en .NET, Java, Python y PHP con experiencia en Azure.
           En transición activa hacia seguridad ofensiva — certificado eJPTv2, resolviendo máquinas
           en HTB y THM.
         </p>
 
         <div class="hero-stack">
           <span class="chip">.NET / C#</span>
-          <span class="chip">Python</span>
           <span class="chip">Java</span>
+          <span class="chip">Python</span>
           <span class="chip">PHP</span>
           <span class="chip">Azure</span>
           <span class="chip">SQL Server</span>
@@ -171,18 +172,22 @@ import {
         <!-- Experiencia laboral -->
         <div class="sg-title" style="margin-bottom: 1.2rem;">Experiencia laboral</div>
 
-        <!-- Data Consulting SAC — agrupa los dos roles -->
+        <!-- Data Consulting SAC -->
         <div class="exp-company">
           <div class="company-logo">DC</div>
           <div class="company-info">
             <div class="company-name">Data Consulting S.A.C.</div>
-            <div class="company-meta">3 años 4 meses · Tacna, Perú</div>
+            <div class="company-meta">
+              {calcDuration("2022-11", true)} · Tacna, Perú
+            </div>
 
             {experience.filter(e => e.company === "Data Consulting S.A.C.").map(role => (
               <div class="exp-role">
                 <div class="role-info">
                   <div class="role-title">{role.role}</div>
-                  <div class="role-period">{role.period} · {role.duration}</div>
+                  <div class="role-period">
+                    {role.period} · {role.current ? calcDuration(role.startDate, true) : role.duration}
+                  </div>
                   <div class="role-type">{role.type}</div>
                   <ul class="role-bullets">
                     {role.bullets.map(b => <li>{b}</li>)}
@@ -196,18 +201,18 @@ import {
           </div>
         </div>
 
-        <!-- IDW — agrupa los dos roles -->
+        <!-- IDW -->
         <div class="exp-company">
           <div class="company-logo" style="color:#f97316;font-size:.75rem">IDW</div>
           <div class="company-info">
             <div class="company-name">Innovation Web Development</div>
-            <div class="company-meta">8 meses · Tacna, Perú · En remoto</div>
+            <div class="company-meta">{calcDuration("2021-08", false, "2022-03")} · Tacna, Perú · En remoto</div>
 
             {experience.filter(e => e.company === "Innovation Web Development").map(role => (
               <div class="exp-role">
                 <div class="role-info">
                   <div class="role-title">{role.role}</div>
-                  <div class="role-period">{role.period} · {role.duration}</div>
+                  <div class="role-period">{role.period} · {calcDuration(role.startDate, role.current, role.endDate)}</div>
                   <div class="role-type">{role.type}</div>
                   <ul class="role-bullets">
                     {role.bullets.map(b => <li>{b}</li>)}

@@ -208,12 +208,56 @@ ping -c 1 <IP_objetivo>
 
 ```
 
-# 05. Escaneos Básico con Nmap
+# 05. Escaneo de Puertos con Nmap
 
-Para obtener información de una maquina, para obtener que puertos estan abiertos en una maquina, podemos realizarlo con nmap
+Nmap es la herramienta estándar para descubrir puertos abiertos, servicios y versiones en un host objetivo.
 
+## Escaneo básico
+
+```bash
 nmap 192.168.1.25
+```
 
-Con los siguioentes parametros se puede obtenr mas detalles
+Escanea los 1000 puertos más comunes usando TCP SYN scan. Útil para un reconocimiento rápido.
 
+## Escaneo completo
+
+```bash
 nmap -p- --open -sS -sC -sV --min-rate 2000 -n -vvv -Pn 192.168.1.25 -oN escaneo.txt
+```
+
+| Flag              | Descripción                                                                    |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `-p-`             | Escanea los 65535 puertos                                                      |
+| `--open`          | Muestra solo puertos abiertos                                                  |
+| `-sS`             | Realiza un escaneo SYN, también conocido como "escaneo sigiloso" o "half-open" |
+| `-sC`             | Ejecuta scripts por defecto de NSE                                             |
+| `-sV`             | Detecta versión del servicio                                                   |
+| `--min-rate 2000` | Mínimo 2000 paquetes/segundo (más rápido)                                      |
+| `-n`              | Sin resolución DNS                                                             |
+| `-vvv`            | Verbose máximo — muestra resultados en tiempo real                             |
+| `-Pn`             | Omite el ping previo (útil si el host bloquea ICMP)                            |
+| `-oN escaneo.txt` | Guarda el resultado en formato normal                                          |
+
+> En CTFs y labs usar `--min-rate 5000` para más velocidad. En entornos reales bajar a `--min-rate 500` para no saturar la red. Para el examen eJPT usar `--min-rate 2000` aunque vaya lento poner.
+
+## Otros formatos de exportación
+
+```bash
+-oN escaneo.txt    # Formato normal (legible)
+-oG escaneo.gnmap  # Formato grepeable
+-oX escaneo.xml    # Formato XML
+-oA escaneo        # Genera los 3 formatos a la vez
+```
+
+## Flujo recomendado
+
+```bash
+# 1. Escaneo rápido para ver qué puertos están abiertos
+nmap -p- --open --min-rate 5000 -Pn -n 192.168.1.25 -oN puertos.txt
+
+# 2. Escaneo detallado solo sobre los puertos encontrados
+nmap -p 22,80,443 -sC -sV -Pn 192.168.1.25 -oN servicios.txt
+```
+
+Separar el escaneo en dos pasos es más eficiente — el primero es rápido y el segundo profundiza solo donde hay algo interesante.

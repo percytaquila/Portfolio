@@ -91,7 +91,7 @@ export async function generateCV(data: any) {
   y = 30;
   setFont("italic", 7.5, BLACK);
   const summaryLines = doc.splitTextToSize(data.profile.summary, contentW + 5);
-  const lineHeight = 5.5; // ← espacio entre líneas (prueba con 5, 5.5 o 6)
+  const lineHeight = 4.5;
   summaryLines.forEach((line: string) => {
     doc.text(line, W / 2, y, { align: "center" });
     y += lineHeight;
