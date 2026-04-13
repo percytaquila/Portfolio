@@ -261,3 +261,76 @@ nmap -p 22,80,443 -sC -sV -Pn 192.168.1.25 -oN servicios.txt
 ```
 
 Separar el escaneo en dos pasos es más eficiente — el primero es rápido y el segundo profundiza solo donde hay algo interesante.
+
+# 06. Detectar Vulnerabilidades con Nmap
+
+Nmap tiene un motor de scripts llamado **NSE (Nmap Scripting Engine)** que permite ejecutar checks automáticos sobre puertos específicos. El script `vuln` agrupa todos los scripts de detección de vulnerabilidades conocidas.
+
+```bash
+nmap --script "vuln" -p 445 192.168.1.25
+```
+
+| Flag              | Descripción                                    |
+| ----------------- | ---------------------------------------------- |
+| `--script "vuln"` | Ejecuta todos los scripts de la categoría vuln |
+| `-p 445`          | Solo sobre el puerto 445 (SMB)                 |
+
+Puedes aplicarlo a varios puertos a la vez:
+
+```bash
+nmap --script "vuln" -p 21,22,80,443,445 192.168.1.25
+```
+
+O a todos los puertos abiertos que encontraste previamente:
+
+```bash
+nmap --script "vuln" -p 22,80,445 192.168.1.25 -oN vulns.txt
+```
+
+> En el eJPT es muy útil correrlo sobre SMB (445) y FTP (21) — son los servicios que más vulnerabilidades tienen en los labs.
+
+Otros scripts útiles por servicio:
+
+```bash
+# SMB
+nmap --script smb-vuln* -p 445 192.168.1.25
+
+# FTP
+nmap --script ftp-vuln* -p 21 192.168.1.25
+
+# HTTP
+nmap --script http-vuln* -p 80,443 192.168.1.25
+```
+
+---
+
+# 07. Escaneo de Puertos bajo el Protocolo UDP
+
+La mayoría de escaneos son TCP, pero servicios como **SNMP (161)**, **DNS (53)** o **TFTP (69)** corren sobre UDP. Nmap no los detecta con un escaneo TCP normal.
+
+```bash
+nmap -sU --top-ports 200 --min-rate 5000 -Pn 192.168.0.17
+```
+
+| Flag              | Descripción                             |
+| ----------------- | --------------------------------------- |
+| `-sU`             | UDP scan                                |
+| `--top-ports 200` | Escanea los 200 puertos UDP más comunes |
+| `--min-rate 5000` | Velocidad mínima de paquetes            |
+| `-Pn`             | Omite el ping previo                    |
+
+> El escaneo UDP es mucho más lento que TCP porque no hay handshake — por eso se limita a los top ports en vez de los 65535.
+
+Servicios UDP que vale la pena revisar en el eJPT:
+
+| Puerto | Servicio | Por qué importa                       |
+| ------ | -------- | ------------------------------------- |
+| 161    | SNMP     | Puede exponer información del sistema |
+| 53     | DNS      | Zone transfer, subdominios            |
+| 69     | TFTP     | Transferencia de archivos sin auth    |
+| 123    | NTP      | Amplification attacks                 |
+
+```bash
+# Escaneo dirigido a puertos UDP específicos
+nmap -sU -p 161,53,69 192.168.0.17 -sV -oN udp_scan.txt
+```

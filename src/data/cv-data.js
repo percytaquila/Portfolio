@@ -228,6 +228,7 @@ export const certLearning = {
           {
             num: "03",
             title: "Explotación de Vulnerabilidades y Ataques de Fuerza Bruta",
+            mdx: "/certifications/ejptv2/curso-mario/03-Explotacion-vulnerabilidades-Fuerza-bruta",
           },
           {
             num: "04",
