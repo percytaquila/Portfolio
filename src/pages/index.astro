@@ -432,7 +432,14 @@ import {
   .social-link:hover { border-color: var(--blue); background: rgba(59,91,219,.08); }
   .s-icon { font-size: .9rem; width: 18px; text-align: center; }
   .s-label { font-size: .7rem; font-weight: 600; color: var(--text); display: block; }
-  .s-handle { font-size: .62rem; color: var(--text3); font-family: var(--font-mono); }
+
+  .s-handle {
+    font-size: .62rem;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    word-break: break-all;      /* ← corta la URL si no cabe */
+    display: block;
+  }
 
   /* About main */
   .about-text { font-size: .88rem; color: var(--text2); line-height: 1.85; margin-bottom: 1.8rem; }
@@ -534,7 +541,7 @@ import {
   margin-bottom: .5rem;
 }
 .avatar-img {
-  width: 110px; height: 110px;
+  width: 180px; height: 180px;
   border-radius: 14px;
   border: 2px solid var(--border);
   object-fit: cover;
